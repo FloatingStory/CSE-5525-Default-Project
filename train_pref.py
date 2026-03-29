@@ -52,7 +52,7 @@ class PREFTrainer:
         pass
 
 @chz.chz
-class ComparisonBuilder(ComparisonDatasetBuilder):
+class OLMOComparisonBuilder(ComparisonDatasetBuilder):
     """olmo-2-0425-1b-preference-mix dataset comparison builder."""
 
     def get_train_and_test_datasets(self) -> tuple[datasets.Dataset, datasets.Dataset | None]:
@@ -80,10 +80,117 @@ class ComparisonBuilder(ComparisonDatasetBuilder):
         return LabeledComparison(comparison=comparison, label="A")
 
 
+#####copied and slight adjusted from train.py in dpo example provided by Tinker
+@chz.chz
+class CLIConfig:
+    model_name: str = "meta-llama/Llama-3.2-1B"
+    dataset: str = "olmo"  # or path like tinker_cookbook.preference.preference_datasets:HHHBuilder
+    load_checkpoint_path: str | None = None
+    renderer_name: str | None = None
+
+    # Training parameters
+    learning_rate: float = 1e-5
+    lr_schedule: LRSchedule = "linear"
+    dpo_beta: float = 0.1
+    max_length: int | None = 8192
+    batch_size: int = 256
+
+    # Logging parameters
+    log_path: str | None = None
+    wandb_project: str | None = None
+    wandb_name: str | None = None
+
+    # Service configuration
+    base_url: str | None = None
+
+    # DPO-specific parameters
+    reference_model_name: str | None = None
+
+    behavior_if_log_dir_exists: cli_utils.LogdirBehavior = "ask"
+
+    max_steps: int | None = None
+
+
+def get_dataset_builder(
+    dataset: str,
+    model_name: str,
+    renderer_name: str,
+    max_length: int | None,
+    batch_size: int,
+) -> ChatDatasetBuilder:
+    """Get the appropriate dataset builder for DPO training."""
+    common_config = ChatDatasetBuilderCommonConfig(
+        model_name_for_tokenizer=model_name,
+        renderer_name=renderer_name,
+        max_length=max_length,
+        batch_size=batch_size,
+    )
+
+    if dataset == "olmo":
+        return DPODatasetBuilderFromComparisons(
+            common_config=common_config, comparison_builder=OLMOComparisonBuilder()
+        )
+    else:
+        raise ValueError(f"Unknown dataset: {dataset}")
+    
+
+def cli_main(cli_config: CLIConfig):
+    """Main CLI function that builds the full config and calls the training function."""
+    # Build full config
+    renderer_name = checkpoint_utils.resolve_renderer_name_from_checkpoint_or_default(
+        model_name=cli_config.model_name,
+        explicit_renderer_name=cli_config.renderer_name,
+        load_checkpoint_path=cli_config.load_checkpoint_path,
+        base_url=cli_config.base_url,
+    )
+    date_and_time = datetime.now().strftime("%Y-%m-%d-%H-%M")
+    model_name = cli_config.model_name.replace("/", "-")
+    run_name = f"{cli_config.dataset}-{model_name}-{cli_config.learning_rate}lr-{cli_config.batch_size}batch-{date_and_time}"
+    if cli_config.log_path is not None:
+        log_path = cli_config.log_path
+    else:
+        log_path = f"/tmp/tinker-examples/dpo/{run_name}"       #CHANGE PATHS
+    if cli_config.wandb_name is not None:
+        wandb_name = cli_config.wandb_name
+    else:
+        wandb_name = run_name
+
+    cli_utils.check_log_dir(log_path, behavior_if_exists=cli_config.behavior_if_log_dir_exists)
+
+    config = train_dpo.Config(
+        log_path=log_path,
+        model_name=cli_config.model_name,
+        renderer_name=renderer_name,
+        dataset_builder=get_dataset_builder(
+            cli_config.dataset,
+            cli_config.model_name,
+            renderer_name,
+            cli_config.max_length,
+            cli_config.batch_size,
+        ),
+        load_checkpoint_path=cli_config.load_checkpoint_path,
+        evaluator_builders=[],
+        learning_rate=cli_config.learning_rate,
+        lr_schedule=cli_config.lr_schedule,
+        dpo_beta=cli_config.dpo_beta,
+        base_url=cli_config.base_url,
+        wandb_project=cli_config.wandb_project,
+        wandb_name=wandb_name,
+        reference_model_name=cli_config.reference_model_name,
+        max_steps=cli_config.max_steps,
+    )
+
+    #commented out until we actually want to run the training on Tinker
+    # train_dpo.main(config)
+
+
+#####end of referenced code
+
+
 def load_and_preprocess_data():
 
     #automatically select corresponding tokenizer using the dataset
-    tokenizer = AutoTokenizer.from_pretrained("allenai/olmo-2-0425-1b")
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
 
     #load allenai/olmo-2-0425-1b-preference-mix dataset from huggingface
     ds = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
@@ -99,3 +206,6 @@ def load_and_preprocess_data():
 if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
     training_data = load_and_preprocess_data()
+
+    # cli_config = chz.entrypoint(CLIConfig)
+    # cli_main(cli_config)
