@@ -55,6 +55,7 @@ class PREFTrainer:
 class OLMOComparisonBuilder(ComparisonDatasetBuilder):
     """olmo-2-0425-1b-preference-mix dataset comparison builder."""
 
+    #Load raw dataset and take 1024 for validation and the rest for training
     def get_train_and_test_datasets(self) -> tuple[datasets.Dataset, datasets.Dataset | None]:
         dataset = datasets.load_dataset(
             "allenai/olmo-2-0425-1b-preference-mix", split="train"
@@ -65,6 +66,7 @@ class OLMOComparisonBuilder(ComparisonDatasetBuilder):
         train_dataset = dataset.skip(1024)
         return train_dataset, test_dataset
 
+    #example (dict): a single row from the HuggingFace dataset
     def example_to_labeled_comparison(self, example: dict) -> LabeledComparison | None:
         instruction = example["dummy_prompt_text"]
         chosen_response = example["chosen"][1]["content"]
@@ -77,6 +79,7 @@ class OLMOComparisonBuilder(ComparisonDatasetBuilder):
             completion_A=[{"role": "assistant", "content": chosen_response}],
             completion_B=[{"role": "assistant", "content": rejected_response}],
         )
+        #choose A over B
         return LabeledComparison(comparison=comparison, label="A")
 
 
@@ -91,7 +94,10 @@ class CLIConfig:
     # Training parameters
     learning_rate: float = 1e-5
     lr_schedule: LRSchedule = "linear"
-    dpo_beta: float = 0.1
+    # num_epochs: int | None = 1
+    dpo_beta: float = 0.1           #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.
+    # lora_rank: int | None = 4
+    # save_every: int | None = 0    #save checkpoint every N steps
     max_length: int | None = 8192
     batch_size: int = 256
 
@@ -172,8 +178,11 @@ def cli_main(cli_config: CLIConfig):
         evaluator_builders=[],
         learning_rate=cli_config.learning_rate,
         lr_schedule=cli_config.lr_schedule,
+        # num_epochs=cli_config.num_epochs,
         dpo_beta=cli_config.dpo_beta,
+        #lora_rank=cli_config.lora_rank,
         base_url=cli_config.base_url,
+        # save_every=cli_config.save_every,
         wandb_project=cli_config.wandb_project,
         wandb_name=wandb_name,
         reference_model_name=cli_config.reference_model_name,
