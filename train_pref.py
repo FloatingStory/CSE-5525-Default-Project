@@ -149,7 +149,7 @@ def cli_main(cli_config: CLIConfig):
     if cli_config.log_path is not None:
         log_path = cli_config.log_path
     else:
-        log_path = f"/tmp/tinker-examples/dpo/{run_name}"       #CHANGE PATHS
+        log_path = f"./LogPathNotFoundFolder/{run_name}"       #CHANGE PATHS
     if cli_config.wandb_name is not None:
         wandb_name = cli_config.wandb_name
     else:
@@ -184,7 +184,52 @@ def cli_main(cli_config: CLIConfig):
     # train_dpo.main(config)
 
 
+
+#for debugging config setup
+def debug_run(cli_config: CLIConfig):
+    print("\n=== DEBUG RUN (no training) ===")
+
+    # Resolve renderer
+    renderer_name = checkpoint_utils.resolve_renderer_name_from_checkpoint_or_default(
+        model_name=cli_config.model_name,
+        explicit_renderer_name=cli_config.renderer_name,
+        load_checkpoint_path=cli_config.load_checkpoint_path,
+        base_url=cli_config.base_url,
+    )
+    print(f"Renderer: {renderer_name}")
+
+    # Build dataset builder
+    dataset_builder = get_dataset_builder(
+        cli_config.dataset,
+        cli_config.model_name,
+        renderer_name,
+        cli_config.max_length,
+        cli_config.batch_size,
+    )
+    print("Dataset builder created")
+
+    # Get datasets
+    train_ds, val_ds = dataset_builder.comparison_builder.get_train_and_test_datasets()
+    print(f"Train dataset size: {len(train_ds)}")
+    print(f"Val dataset size: {len(val_ds) if val_ds else 0}")
+
+    # Peek at raw example
+    print("\nSample raw example:")
+    print(train_ds[1])
+    print("\n\nExtract content Sample raw example:")
+    print(train_ds[1]['chosen'][0]['content'])
+
+    # Tokenizer test
+    tokenizer = AutoTokenizer.from_pretrained(cli_config.model_name)
+    sample_text = "This is trash"
+    tokens = tokenizer(sample_text)
+    print("\nTokenizer test:")
+    print(tokens)
+
+    print("\nDEBUG RUN SUCCESSFUL")
+
 #####end of referenced code
+
 
 
 def load_and_preprocess_data():
@@ -205,7 +250,24 @@ def load_and_preprocess_data():
 
 if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
+    
     training_data = load_and_preprocess_data()
 
     cli_config = chz.entrypoint(CLIConfig)
+
+    #debug check
+    debug_run(cli_config)
+
+    #actual dpo tinker call
     cli_main(cli_config)
+
+"""Run using command:
+
+    python -m train_pref \
+    log_path=./log \ 
+    model_name=meta-llama/Llama-3.2-1B \
+    dataset=olmo \
+    renderer_name=role_colon \
+    learning_rate=1e-5 \
+    dpo_beta=0.1
+"""
