@@ -207,5 +207,5 @@ if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
     training_data = load_and_preprocess_data()
 
-    # cli_config = chz.entrypoint(CLIConfig)
-    # cli_main(cli_config)
+    cli_config = chz.entrypoint(CLIConfig)
+    cli_main(cli_config)
