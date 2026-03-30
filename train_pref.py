@@ -60,16 +60,17 @@ class OLMOComparisonBuilder(ComparisonDatasetBuilder):
         dataset = datasets.load_dataset(
             "allenai/olmo-2-0425-1b-preference-mix", split="train"
         )
-        dataset = dataset.map(lambda example: {"dummy_prompt_text": ""})
+        # dataset = dataset.map(lambda example: {"dummy_prompt_text": ""})
         dataset = cast(datasets.Dataset, dataset)
         dataset = dataset.shuffle(seed=0)
-        test_dataset = dataset.take(1024)
-        train_dataset = dataset.skip(1024)
+        test_dataset = dataset.take(256)
+        train_dataset = dataset.skip(256)
         return train_dataset, test_dataset
 
     #example (dict): a single row from the HuggingFace dataset
     def example_to_labeled_comparison(self, example: dict) -> LabeledComparison | None:
-        instruction = example["dummy_prompt_text"]
+        # instruction = example["dummy_prompt_text"]
+        instruction = example["chosen"][0]["content"]
         chosen_response = example["chosen"][1]["content"]
         rejected_response = example["rejected"][1]["content"]
 
@@ -97,10 +98,10 @@ class CLIConfig:
     lr_schedule: LRSchedule = "linear"
     # num_epochs: int | None = 1
     dpo_beta: float = 0.1           #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.
-    # lora_rank: int | None = 4
-    # save_every: int | None = 0    #save checkpoint every N steps
-    max_length: int | None = 1024 #8192
-    batch_size: int = 32 #256
+    lora_rank: int | None = 8
+    save_every: int | None = 0    #save checkpoint every N steps
+    max_length: int | None = 512 #2048 #8192
+    batch_size: int = 256 #32
 
     # Logging parameters
     log_path: str | None = None
@@ -182,9 +183,9 @@ def cli_main(cli_config: CLIConfig):
         lr_schedule=cli_config.lr_schedule,
         # num_epochs=cli_config.num_epochs,
         dpo_beta=cli_config.dpo_beta,
-        #lora_rank=cli_config.lora_rank,
+        lora_rank=cli_config.lora_rank,
         base_url=cli_config.base_url,
-        # save_every=cli_config.save_every,
+        save_every=cli_config.save_every,
         wandb_project=cli_config.wandb_project,
         wandb_name=wandb_name,
         reference_model_name=cli_config.reference_model_name,
@@ -274,6 +275,7 @@ if __name__ == "__main__":
     cli_main(cli_config)
 
 """Run using command:
+    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 save_every=1000 dpo_beta=0.1 max_steps=1000
 
-    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 dpo_beta=0.1
+    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 dpo_beta=0.1
 """
