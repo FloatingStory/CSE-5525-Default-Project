@@ -12,16 +12,14 @@ from tinker_cookbook.preference import train_dpo
 from tinker_cookbook.preference.dpo_datasets import (
     DPODatasetBuilderFromComparisons,
 )
-# from tinker_cookbook.recipes.preference.datasets import (
-#     HelpSteer3ComparisonBuilder,
-#     HHHComparisonBuilder,
-#     UltraFeedbackComparisonBuilder,
-# )
+
 from tinker_cookbook.supervised.types import ChatDatasetBuilder, ChatDatasetBuilderCommonConfig
 from tinker_cookbook.utils.lr_scheduling import LRSchedule
 
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
+# from trl import DPOTrainer
+from torch.utils.data import DataLoader
 #=====
 import logging
 import re
@@ -259,37 +257,69 @@ def debug_run(cli_config: CLIConfig):
 
 #####end of referenced code
 
+def prompt_and_reponses(examples) -> dict[str, str, str]:
+    return {
+        "prompt" : f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
+        "chosen": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
+        "rejected": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
+    }
+    # return {
+    #     "prompt" : f"<|begin_of_text|><|start_header_id|>{examples['chosen'][0]['role']}<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
+    #     "chosen": f"<|start_header_id|>{examples['chosen'][1]['role']}<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
+    #     "rejected": f"<|start_header_id|>{examples['rejected'][1]['role']}<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
+    # }
+
+    # return {
+    #     "prompt" : examples["chosen"][0]["content"],
+    #     "chosen": examples["chosen"][1]["content"],
+    #     "rejected": examples["rejected"][1]["content"],
+    # }
 
 
 def load_and_preprocess_data():
 
-    #automatically select corresponding tokenizer using the dataset
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
+    #adjust to be path to sft weights
+    checkpoint_path = "./checkpoint...."
+
+    #load model from checkpoint(eventually) and use for DPOTrainer
+    # model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B")#checkpoint_path)
 
     #load allenai/olmo-2-0425-1b-preference-mix dataset from huggingface
-    ds = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
-    #add a new column "dummy_prompt_text" filled with empty strings
-    ds = ds.map(lambda example: {"dummy_prompt_text": ""})
+    dataset = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
 
-    #use dummy_prompt_text, chosen, rejected for prompt, chosen, rejected keys respectively
+    #load corresponding tokenizer of same model
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
+    # dataset = tokenizer.apply_chat_template(dataset, tokenize=False, add_generation_prompt=False)
 
-    print(f"\n\nFirst item in dataset:")
-    print(ds)
-    return ds
+    #get column names from olmo
+    original_columns = dataset.column_names
+
+    #adjust dataset by setting each example to be what is returned by the prompt_and_responses function(3 columns: prompt, chosen response, rejected response)
+    dataset = dataset.map(
+        prompt_and_reponses,
+        batched=False,
+        remove_columns=original_columns
+    )
+    # dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+
+    print(f"\n\n=== First item in dataset ===")
+    print(dataset)
+    print(dataset[1])#['prompt'])
+
+    # print(f"\n\nFirst item in dataset parsed out ===")
+    # print(dataset[1]['prompt'])
+    # print(dataset[1]['chosen'])
+    # print(dataset[1]['rejected'])
+    return dataset
 
 if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
-    
-    # training_data = load_and_preprocess_data()
 
     cli_config = chz.entrypoint(CLIConfig)
 
-    #debug check
-    debug_run(cli_config)
+    print("\n\n=== NOW LOADING AND PREPROCESSING DATA ===")
+    training_data = load_and_preprocess_data()
 
-    print("\n\n=== NOW RUNNING cli_main ===")
-    #actual dpo tinker call
-    cli_main(cli_config)
 
 """Run using command:
     python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 save_every=1000 dpo_beta=0.1 max_steps=1000

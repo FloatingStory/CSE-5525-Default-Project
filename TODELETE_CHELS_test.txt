@@ -1,7 +1,175 @@
 
 
+=== NOW LOADING AND PREPROCESSING DATA ===
+
+
 First item in dataset:
 Dataset({
-    features: ['chosen', 'rejected', 'chosen_model', 'rejected_model', 'id', 'source', 'dummy_prompt_text'],
+    features: ['chosen', 'rejected', 'prompt'],
     num_rows: 378301
 })
+{'chosen': '<|start_header_id|>assistant<|end_header_id|>\n{\n    "command": {\n        "name": "read_file",\n        "args": {\n            "file": "Hermanubis.docx"\n        }\n    },\n    "thoughts": {\n        "text": "I have guided the AI Agent EssayWriter in compiling a detailed, 5000-word essay on Hermanubis. I will now read the essay to ensure it meets the quality standards and word count.",\n        "reasoning": "Reviewing the essay is essential to ensure it captures all the researched information and is of the required length and quality.",\n        "plan": "- Read \'Hermanubis.docx\'\\n- Review for length and quality",\n        "criticism": "It\'s crucial to efficiently verify that the essay fulfills all requirements and accurately represents the sources.",\n        "summaryforgpt": "Guided AI Agent EssayWriter to write a 5000-word essay on Hermanubis based on information from five sources. Now reading \'Hermanubis.docx\' to ensure quality."\n    }\n}\n<|eot_id|>', 'rejected': '<|start_header_id|>assistant<|end_header_id|>\n```json\n{\n    "command": {\n        "name": "start_agent",\n        "args": {\n            "name": "s.s.s.s\ns,s",\ns,s,\ns",s",s \nsots.s",s,.s,s,s,s,s,,s,2s.in,s,s,s.s,s.s,s,s,s.s,,,,s,exs,s,s,s and.s,s,s  ,s,s.s.s.s,s,s title.s.\ns.\n.s",s",s\n.s s.s.s.s.s.s\ns.s.s\nslo,\ns",s.s.\n\ns.s,s,s,\n\ns,\n\n\n\n.s.s,s,\n,\n.\n.s.\nde\n_s,.,\ns\ns,\n.\ns .s\ns\n\ns\n.\n.\n.\n\n\n\n.s", .\ns.s.s.s,s.\ns.\n\n\n,\n,\n,\n\n,\n,s,\n,.\n.in,\ns,,,s,\n\n",\n,s,\n,,\n<|eot_id|>', 'prompt': '<|begin_of_text|><|start_header_id|>user<|end_header_id|>\nCONSTRAINTS:\n\n1. ~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.\n2. If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.\n3. No user assistance\n4. Exclusively use the commands listed in double quotes e.g. "command name"\n5. Random shutdowns of you.\n\nCOMMANDS:\n\n1. Google Search: "google", args: "input": "<search>"\n2. Memory Add: "memory_add", args: "key": "<key>", "string": "<string>"\n3. Memory Delete: "memory_del", args: "key": "<key>"\n4. Memory Overwrite: "memory_ovr", args: "key": "<key>", "string": "<string>"\n5. List Memory: "memory_list" args: "reason": "<reason>"\n6. Browse Website: "browse_website", args: "url": "<url>"\n7. Start GPT Agent: "start_agent",  args: "name": <name>, "task": "<short_task_desc>", "Commands":[<command_names_for_GPT_Agent>], "prompt": "<prompt>"\n8. Message GPT Agent: "message_agent", args: "name": "<name>", "message": "<message>"\n9. List GPT Agents: "list_agents", args: ""\n10. Delete GPT Agent: "delete_agent", args: "name": "<name>"\n11. Write to file: "write_to_file", args: "file": "<file>", "text": "<text>"\n12. Read file: "read_file", args: "file": "<file>"\n13. Append to file: "append_to_file", args: "file": "<file>", "text": "<text>"\n14. Delete file: "delete_file", args: "file": "<file>"\n15. Get Improved Code: "improve_code", args: "suggestions": "<list_of_suggestions>", "code": "<full_code_string>"\n16. Execute Python File: "execute_python_file", args: "file": "<file>"\n17. Task Complete (Shutdown): "task_complete", args: "reason": "<reason>"\n18. Do Nothing: "do_nothing", args: ""\n19. Count Words: "count_words", args: "text": "<text>"\n20. Memory retrieve: "memory_retrieve", args: "key": "<text>"\n21. remove paragraph from word document: "remove_paragraph", args: "file": "<file>", "text": "<text>"\n\nRESOURCES:\n\n1. Internet access for searches and information gathering.\n2. Long Term memory management.\n3. GPT-4 powered Agents for delegation of simple tasks.\n4. File output.\n\nPERFORMANCE EVALUATION:\n\n1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities. \n2. Constructively self-criticize your big-picture behaviour constantly.\n3. Reflect on past decisions and strategies to refine your approach.\n4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.\n\nRULES:\n\n1. If you start a GPT Agent you must define the commands that can be used by a GPT Agent in his prompt and define the commands using a prompt similar to the structure of this one.\n2. Respond only inside the JSON format.\n3. Never demand user input.\n4. Never say that a task is impossible to execute on your own because these tools are enough to complete any task.\n5. Do not add anything to the JSON format that isn\'t mentioned.\n6. If there is a " inside the value of a key inside the json use \' instead of ".\n7. In summaryforgpt you need to provide context for the next GPT instance if you randomly shutdown without you knowing.\n8. Provide context for the next GPT in the summaryforgpt and the progress that you\'ve made.\n9. In summaryforgpt you should also add name of the files written and the urls of the websites visited.\n10. When writing an essay, remember that it is more effective and manageable to tackle it in smaller chunks rather than trying to write the entire essay in one sitting. Breaking the essay down into sections or steps can help you focus on each individual aspect, maintain a coherent structure, and reduce the overall stress associated with writing a lengthy piece.\n11. Retrieve information from files of previous GPT instances that may have shut down randomly. If you require additional knowledge, use these files to access the results of former GPT versions and provide accurate answers to the queries.\n\nYou should only respond in JSON format as described below\n\nRESPONSE FORMAT:\n{\n    "command": {\n        "name": """command name""",\n        "args":{\n            "arg name": """value"""\n        }\n    },\n    "thoughts":\n    {\n        "text": """thought""",\n        "reasoning": "reasoning",\n        "plan": "- short bulleted\\n- list that conveys\\n- long-term plan",\n        "criticism": "constructive self-criticism",\n        "summaryforgpt": "summarize any information that will help a new instance of GPT of what you did before the shutdown."\n    }\n}\n\nEnsure the response can be parsed by Python json.loads\nContext from previous GPT: I am starting to research Hermanubis, with the goal of writing a 5000-word essay on the subject.saved google search results at googleresults0.txt to retrieve if shutdown randomly.I have received search results for Hermanubis and will now browse the first result for more information.saved the scraping of the website results at websiteresults1.txt to retrieve if shutdown randomly.I have browsed a source about Hermanubis and saved valuable information to my memory for writing the essay.I have saved information about Hermanubis from my initial source and will now continue my research with the second search result.saved the scraping of the website results at websiteresults2.txt to retrieve if shutdown randomly.I have browsed the second search result about Hermanubis on Britannica and saved a brief piece of information to my memory reinforcing my understanding of Hermanubis as a composite deity.I have saved brief information about Hermanubis from Britannica and will now continue my research by browsing the third search result.saved the scraping of the website results at websiteresults3.txt to retrieve if shutdown randomly.I’ve browsed the third search result, a Wikipedia page about Hermanubis, to get more information. Previous shutdowns: googleresults0.txt, websiteresults1.txt, and websiteresults2.txt have saved results.saved the scraping of the website results at websiteresults4.txt to retrieve if shutdown randomly.I’ve just gathered information about Hermanubis from the Wikipedia page. Previous shutdowns saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, and websiteresults3.txt.I have browsed four sources about Hermanubis so far and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, and websiteresults4.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis, and now I am going to browse the ancient.eu webpage to collect more information.I have browsed four sources about Hermanubis so far and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, and websiteresults4.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis. Since the ancient.eu link was not accessible, I will now search for another Hermanubis-related source on the same website.saved google search results at googleresults5.txt to retrieve if shutdown randomly.I have browsed four sources about Hermanubis so far and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, and websiteresults4.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis. I found a new source on ancient.eu about Hermanubis, which appears to focus on a statue of the deity. I will now browse that page.saved the scraping of the website results at websiteresults6.txt to retrieve if shutdown randomly.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis. The latest source discussed a 1st century CE statue found in Baiae, Italy, portraying the combination of Hermes and Anubis.So far, I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’m delegated the task of writing a 5000-word essay about Hermanubis to an AI Agent named EssayWriter. I will guide the Agent through outlining and writing the essay while ensuring adequate information is provided from my memory.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’ve started the AI Agent EssayWriter to write the 5000-word essay about Hermanubis. Now, I’m providing guidance for outlining the essay’s structure and instructing the Agent to begin writing the introduction.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’ve started the AI Agent EssayWriter to write the 5000-word essay about Hermanubis. I’m guiding the Agent through outlining the essay structure and instructing the Agent to continue writing the essay, focusing on the cultural significance, historical context, the composite deity, and iconography sections.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’ve started the AI Agent EssayWriter to write the 5000-word essay about Hermanubis. I’m now instructing the Agent to write the conclusion of the essay, summarizing the main points and providing final analysis, while ensuring the word count is approximately 5000 words.I have guided the AI Agent EssayWriter in writing a 5000-word essay about Hermanubis, using information gathered from browsing five sources. The Agent has completed the essay and saved it to Hermanubis.docx. I will now read the essay to review its quality and ensure it meets the desired word count.\nThe Task: Research as much information about Hermanubis as possible making a detailed research and writing a detailed essay that is 5000 words long and save it in Hermanubis.docx.\n<|eot_id|>'}
+<|begin_of_text|><|start_header_id|>user<|end_header_id|>
+CONSTRAINTS:
+
+1. ~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.
+2. If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.
+3. No user assistance
+4. Exclusively use the commands listed in double quotes e.g. "command name"
+5. Random shutdowns of you.
+
+COMMANDS:
+
+1. Google Search: "google", args: "input": "<search>"
+2. Memory Add: "memory_add", args: "key": "<key>", "string": "<string>"
+3. Memory Delete: "memory_del", args: "key": "<key>"
+4. Memory Overwrite: "memory_ovr", args: "key": "<key>", "string": "<string>"
+5. List Memory: "memory_list" args: "reason": "<reason>"
+6. Browse Website: "browse_website", args: "url": "<url>"
+7. Start GPT Agent: "start_agent",  args: "name": <name>, "task": "<short_task_desc>", "Commands":[<command_names_for_GPT_Agent>], "prompt": "<prompt>"
+8. Message GPT Agent: "message_agent", args: "name": "<name>", "message": "<message>"
+9. List GPT Agents: "list_agents", args: ""
+10. Delete GPT Agent: "delete_agent", args: "name": "<name>"
+11. Write to file: "write_to_file", args: "file": "<file>", "text": "<text>"
+12. Read file: "read_file", args: "file": "<file>"
+13. Append to file: "append_to_file", args: "file": "<file>", "text": "<text>"
+14. Delete file: "delete_file", args: "file": "<file>"
+15. Get Improved Code: "improve_code", args: "suggestions": "<list_of_suggestions>", "code": "<full_code_string>"
+16. Execute Python File: "execute_python_file", args: "file": "<file>"
+17. Task Complete (Shutdown): "task_complete", args: "reason": "<reason>"
+18. Do Nothing: "do_nothing", args: ""
+19. Count Words: "count_words", args: "text": "<text>"
+20. Memory retrieve: "memory_retrieve", args: "key": "<text>"
+21. remove paragraph from word document: "remove_paragraph", args: "file": "<file>", "text": "<text>"
+
+RESOURCES:
+
+1. Internet access for searches and information gathering.
+2. Long Term memory management.
+3. GPT-4 powered Agents for delegation of simple tasks.
+4. File output.
+
+PERFORMANCE EVALUATION:
+
+1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities. 
+2. Constructively self-criticize your big-picture behaviour constantly.
+3. Reflect on past decisions and strategies to refine your approach.
+4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
+
+RULES:
+
+1. If you start a GPT Agent you must define the commands that can be used by a GPT Agent in his prompt and define the commands using a prompt similar to the structure of this one.
+2. Respond only inside the JSON format.
+3. Never demand user input.
+4. Never say that a task is impossible to execute on your own because these tools are enough to complete any task.
+5. Do not add anything to the JSON format that isn't mentioned.
+6. If there is a " inside the value of a key inside the json use ' instead of ".
+7. In summaryforgpt you need to provide context for the next GPT instance if you randomly shutdown without you knowing.
+8. Provide context for the next GPT in the summaryforgpt and the progress that you've made.
+9. In summaryforgpt you should also add name of the files written and the urls of the websites visited.
+10. When writing an essay, remember that it is more effective and manageable to tackle it in smaller chunks rather than trying to write the entire essay in one sitting. Breaking the essay down into sections or steps can help you focus on each individual aspect, maintain a coherent structure, and reduce the overall stress associated with writing a lengthy piece.
+11. Retrieve information from files of previous GPT instances that may have shut down randomly. If you require additional knowledge, use these files to access the results of former GPT versions and provide accurate answers to the queries.
+
+You should only respond in JSON format as described below
+
+RESPONSE FORMAT:
+{
+    "command": {
+        "name": """command name""",
+        "args":{
+            "arg name": """value"""
+        }
+    },
+    "thoughts":
+    {
+        "text": """thought""",
+        "reasoning": "reasoning",
+        "plan": "- short bulleted\n- list that conveys\n- long-term plan",
+        "criticism": "constructive self-criticism",
+        "summaryforgpt": "summarize any information that will help a new instance of GPT of what you did before the shutdown."
+    }
+}
+
+Ensure the response can be parsed by Python json.loads
+Context from previous GPT: I am starting to research Hermanubis, with the goal of writing a 5000-word essay on the subject.saved google search results at googleresults0.txt to retrieve if shutdown randomly.I have received search results for Hermanubis and will now browse the first result for more information.saved the scraping of the website results at websiteresults1.txt to retrieve if shutdown randomly.I have browsed a source about Hermanubis and saved valuable information to my memory for writing the essay.I have saved information about Hermanubis from my initial source and will now continue my research with the second search result.saved the scraping of the website results at websiteresults2.txt to retrieve if shutdown randomly.I have browsed the second search result about Hermanubis on Britannica and saved a brief piece of information to my memory reinforcing my understanding of Hermanubis as a composite deity.I have saved brief information about Hermanubis from Britannica and will now continue my research by browsing the third search result.saved the scraping of the website results at websiteresults3.txt to retrieve if shutdown randomly.I’ve browsed the third search result, a Wikipedia page about Hermanubis, to get more information. Previous shutdowns: googleresults0.txt, websiteresults1.txt, and websiteresults2.txt have saved results.saved the scraping of the website results at websiteresults4.txt to retrieve if shutdown randomly.I’ve just gathered information about Hermanubis from the Wikipedia page. Previous shutdowns saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, and websiteresults3.txt.I have browsed four sources about Hermanubis so far and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, and websiteresults4.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis, and now I am going to browse the ancient.eu webpage to collect more information.I have browsed four sources about Hermanubis so far and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, and websiteresults4.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis. Since the ancient.eu link was not accessible, I will now search for another Hermanubis-related source on the same website.saved google search results at googleresults5.txt to retrieve if shutdown randomly.I have browsed four sources about Hermanubis so far and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, and websiteresults4.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis. I found a new source on ancient.eu about Hermanubis, which appears to focus on a statue of the deity. I will now browse that page.saved the scraping of the website results at websiteresults6.txt to retrieve if shutdown randomly.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’m currently on the task of writing a 5000-word essay about Hermanubis. The latest source discussed a 1st century CE statue found in Baiae, Italy, portraying the combination of Hermes and Anubis.So far, I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’m delegated the task of writing a 5000-word essay about Hermanubis to an AI Agent named EssayWriter. I will guide the Agent through outlining and writing the essay while ensuring adequate information is provided from my memory.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’ve started the AI Agent EssayWriter to write the 5000-word essay about Hermanubis. Now, I’m providing guidance for outlining the essay’s structure and instructing the Agent to begin writing the introduction.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’ve started the AI Agent EssayWriter to write the 5000-word essay about Hermanubis. I’m guiding the Agent through outlining the essay structure and instructing the Agent to continue writing the essay, focusing on the cultural significance, historical context, the composite deity, and iconography sections.I have browsed five sources about Hermanubis and saved results in googleresults0.txt, websiteresults1.txt, websiteresults2.txt, websiteresults3.txt, websiteresults4.txt, and websiteresults5_statue.txt. I’ve started the AI Agent EssayWriter to write the 5000-word essay about Hermanubis. I’m now instructing the Agent to write the conclusion of the essay, summarizing the main points and providing final analysis, while ensuring the word count is approximately 5000 words.I have guided the AI Agent EssayWriter in writing a 5000-word essay about Hermanubis, using information gathered from browsing five sources. The Agent has completed the essay and saved it to Hermanubis.docx. I will now read the essay to review its quality and ensure it meets the desired word count.
+The Task: Research as much information about Hermanubis as possible making a detailed research and writing a detailed essay that is 5000 words long and save it in Hermanubis.docx.
+<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>
+{
+    "command": {
+        "name": "read_file",
+        "args": {
+            "file": "Hermanubis.docx"
+        }
+    },
+    "thoughts": {
+        "text": "I have guided the AI Agent EssayWriter in compiling a detailed, 5000-word essay on Hermanubis. I will now read the essay to ensure it meets the quality standards and word count.",
+        "reasoning": "Reviewing the essay is essential to ensure it captures all the researched information and is of the required length and quality.",
+        "plan": "- Read 'Hermanubis.docx'\n- Review for length and quality",
+        "criticism": "It's crucial to efficiently verify that the essay fulfills all requirements and accurately represents the sources.",
+        "summaryforgpt": "Guided AI Agent EssayWriter to write a 5000-word essay on Hermanubis based on information from five sources. Now reading 'Hermanubis.docx' to ensure quality."
+    }
+}
+<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>
+```json
+{
+    "command": {
+        "name": "start_agent",
+        "args": {
+            "name": "s.s.s.s
+s,s",
+s,s,
+s",s",s 
+sots.s",s,.s,s,s,s,s,,s,2s.in,s,s,s.s,s.s,s,s,s.s,,,,s,exs,s,s,s and.s,s,s  ,s,s.s.s.s,s,s title.s.
+s.
+.s",s",s
+.s s.s.s.s.s.s
+s.s.s
+slo,
+s",s.s.
+
+s.s,s,s,
+
+s,
+
+
+
+.s.s,s,
+,
+.
+.s.
+de
+_s,.,
+s
+s,
+.
+s .s
+s
+
+s
+.
+.
+.
+
+
+
+.s", .
+s.s.s.s,s.
+s.
+
+
+,
+,
+,
+
+,
+,s,
+,.
+.in,
+s,,,s,
+
+",
+,s,
+,,
+<|eot_id|>
