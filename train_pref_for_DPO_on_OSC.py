@@ -92,10 +92,17 @@ class CLIConfig:
 
 def prompt_and_reponses(examples) -> dict[str, str, str]:
     return {
-        "prompt" : f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
-        "chosen": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
-        "rejected": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
+        "prompt" : [{"role": "user", "content": examples["chosen"][0]["content"]}],
+        "chosen": [{"role": "assistant", "content": examples["chosen"][1]["content"]}],
+        "rejected": [{"role": "assistant", "content": examples["rejected"][1]["content"]}],
     }
+
+    # return {
+    #     "prompt" : f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
+    #     "chosen": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
+    #     "rejected": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
+    # }
+
     # return {
     #     "prompt" : f"<|begin_of_text|><|start_header_id|>{examples['chosen'][0]['role']}<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
     #     "chosen": f"<|start_header_id|>{examples['chosen'][1]['role']}<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
