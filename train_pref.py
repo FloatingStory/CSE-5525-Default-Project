@@ -60,6 +60,7 @@ class OLMOComparisonBuilder(ComparisonDatasetBuilder):
         dataset = datasets.load_dataset(
             "allenai/olmo-2-0425-1b-preference-mix", split="train"
         )
+        dataset = dataset.map(lambda example: {"dummy_prompt_text": ""})
         dataset = cast(datasets.Dataset, dataset)
         dataset = dataset.shuffle(seed=0)
         test_dataset = dataset.take(1024)
@@ -163,6 +164,7 @@ def cli_main(cli_config: CLIConfig):
 
     cli_utils.check_log_dir(log_path, behavior_if_exists=cli_config.behavior_if_log_dir_exists)
 
+    #documentation of Config parameters at https://github.com/thinking-machines-lab/tinker-cookbook/blob/main/tinker_cookbook/preference/train_dpo.py
     config = train_dpo.Config(
         log_path=log_path,
         model_name=cli_config.model_name,
@@ -174,7 +176,7 @@ def cli_main(cli_config: CLIConfig):
             cli_config.max_length,
             cli_config.batch_size,
         ),
-        load_checkpoint_path=cli_config.load_checkpoint_path,
+        load_checkpoint_path=cli_config.load_checkpoint_path,   #path to a checkpoint to initialize weights from.  ``None`` starts from the base model
         evaluator_builders=[],
         learning_rate=cli_config.learning_rate,
         lr_schedule=cli_config.lr_schedule,
@@ -267,16 +269,11 @@ if __name__ == "__main__":
     #debug check
     debug_run(cli_config)
 
+    print("\n\n=== NOW RUNNING cli_main ===")
     #actual dpo tinker call
     cli_main(cli_config)
 
 """Run using command:
 
-    python -m train_pref \
-    log_path=./log \ 
-    model_name=meta-llama/Llama-3.2-1B \
-    dataset=olmo \
-    renderer_name=role_colon \
-    learning_rate=1e-5 \
-    dpo_beta=0.1
+    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 dpo_beta=0.1
 """
