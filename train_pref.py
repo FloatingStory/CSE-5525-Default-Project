@@ -99,8 +99,8 @@ class CLIConfig:
     dpo_beta: float = 0.1           #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.
     # lora_rank: int | None = 4
     # save_every: int | None = 0    #save checkpoint every N steps
-    max_length: int | None = 8192
-    batch_size: int = 256
+    max_length: int | None = 1024 #8192
+    batch_size: int = 32 #256
 
     # Logging parameters
     log_path: str | None = None
