@@ -49,7 +49,7 @@ class PREFTrainer:
 
     def train(self):
         # Implement the training loop here
-        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset)
+        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset, tokenizer=self.tokenizer)
         trainer.train()
         #saving model in OSC_DPO folder
         trainer.save_model("OSC_DPO")
