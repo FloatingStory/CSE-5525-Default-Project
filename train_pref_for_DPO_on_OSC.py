@@ -49,7 +49,7 @@ class PREFTrainer:
 
     def train(self):
         # Implement the training loop here
-        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset, tokenizer=self.tokenizer)
+        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset)
         trainer.train()
         #saving model in OSC_DPO folder
         trainer.save_model("OSC_DPO")
@@ -91,11 +91,11 @@ class CLIConfig:
 
 
 def prompt_and_reponses(examples) -> dict[str, str, str]:
-    return {
-        "prompt" : [{"role": "user", "content": examples["chosen"][0]["content"]}],
-        "chosen": [{"role": "assistant", "content": examples["chosen"][1]["content"]}],
-        "rejected": [{"role": "assistant", "content": examples["rejected"][1]["content"]}],
-    }
+    # return {
+    #     "prompt" : [{"role": "user", "content": examples["chosen"][0]["content"]}],
+    #     "chosen": [{"role": "assistant", "content": examples["chosen"][1]["content"]}],
+    #     "rejected": [{"role": "assistant", "content": examples["rejected"][1]["content"]}],
+    # }
 
     # return {
     #     "prompt" : f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
@@ -109,11 +109,11 @@ def prompt_and_reponses(examples) -> dict[str, str, str]:
     #     "rejected": f"<|start_header_id|>{examples['rejected'][1]['role']}<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
     # }
 
-    # return {
-    #     "prompt" : examples["chosen"][0]["content"],
-    #     "chosen": examples["chosen"][1]["content"],
-    #     "rejected": examples["rejected"][1]["content"],
-    # }
+    return {
+        "prompt" : examples["chosen"][0]["content"],
+        "chosen": examples["chosen"][1]["content"],
+        "rejected": examples["rejected"][1]["content"],
+    }
 
 
 def load_and_preprocess_data():
@@ -121,6 +121,8 @@ def load_and_preprocess_data():
     #load allenai/olmo-2-0425-1b-preference-mix dataset from huggingface
     dataset = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
 
+    #small run to test code
+    dataset = dataset.take(10)
     # #only keep English examples using langdetect based on the 'chosen' content, WARNING: takes about 28 minutes on CPU
     # def is_english(example):
     #     try:
