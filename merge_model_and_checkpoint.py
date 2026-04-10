@@ -8,15 +8,14 @@ output_dir = "./MERGED_SFT_MODEL"
 #load base model
 model = AutoModelForCausalLM.from_pretrained(
     base_model_name,
-    dtype="float16",
     device_map="cpu"
 )
 
 #load adapter(LoRA) on top
-model = PeftModel.from_pretrained(model, adapter_path)
+model_adapt = PeftModel.from_pretrained(model, adapter_path, device_map="cpu")
 
 #merge adapter into base model
-model = model.merge_and_unload()
+model = model_adapt.merge_and_unload()
 
 #save merged model
 model.save_pretrained(output_dir)
