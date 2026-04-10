@@ -2,14 +2,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
 base_model_name = "meta-llama/Llama-3.2-1B"
-adapter_path = "./unzipped_checkpoint_directory"
-output_dir = "./output_directory_for_model"
+adapter_path = "./sft_best_checkpoint"
+output_dir = "./MERGED_SFT_MODEL"
 
 #load base model
 model = AutoModelForCausalLM.from_pretrained(
     base_model_name,
-    torch_dtype="auto",
-    device_map="auto"
+    dtype="float16",
+    device_map="cpu"
 )
 
 #load adapter(LoRA) on top
