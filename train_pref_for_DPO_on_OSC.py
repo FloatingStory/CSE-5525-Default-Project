@@ -52,42 +52,7 @@ class PREFTrainer:
         trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset)
         trainer.train()
         #saving model in OSC_DPO folder
-        trainer.save_model("OSC_DPO")
-
-#####copied and slight adjusted from train.py in dpo example provided by Tinker
-@chz.chz
-class CLIConfig:
-    model_name: str = "meta-llama/Llama-3.2-1B"
-    dataset: str = "olmo"  # or path like tinker_cookbook.preference.preference_datasets:HHHBuilder
-    load_checkpoint_path: str | None = None
-    renderer_name: str | None = None
-
-    # Training parameters
-    learning_rate: float = 1e-5
-    lr_schedule: LRSchedule = "linear"
-    # num_epochs: int | None = 1
-    dpo_beta: float = 0.1           #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.
-    lora_rank: int | None = 16 #8
-    save_every: int | None = 0    #save checkpoint every N steps
-    max_length: int | None = 512 #700 #2048 #8192
-    batch_size: int = 32 #256
-
-    # Logging parameters
-    log_path: str | None = None
-    wandb_project: str | None = None
-    wandb_name: str | None = None
-
-    # Service configuration
-    base_url: str | None = None
-
-    # DPO-specific parameters
-    reference_model_name: str | None = None
-
-    behavior_if_log_dir_exists: cli_utils.LogdirBehavior = "ask"
-
-    max_steps: int | None = None
-
-#####end of referenced Tinker code
+        trainer.save_model("OSC_DPO_TRAINED")
 
 
 def prompt_and_reponses(examples) -> dict[str, str, str]:
@@ -109,11 +74,18 @@ def prompt_and_reponses(examples) -> dict[str, str, str]:
     #     "rejected": f"<|start_header_id|>{examples['rejected'][1]['role']}<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
     # }
 
+    # return {
+    #     "prompt" : examples["chosen"][0]["content"],
+    #     "chosen": examples["chosen"][1]["content"],
+    #     "rejected": examples["rejected"][1]["content"],
+    # }
+
     return {
-        "prompt" : examples["chosen"][0]["content"],
-        "chosen": examples["chosen"][1]["content"],
-        "rejected": examples["rejected"][1]["content"],
+        "prompt" : examples["chosen"][0]["content"].strip(),
+        "chosen": " " + examples["chosen"][1]["content"].strip(),
+        "rejected": " " + examples["rejected"][1]["content"].strip(),
     }
+
 
 
 def load_and_preprocess_data():
@@ -122,7 +94,9 @@ def load_and_preprocess_data():
     dataset = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
 
     #small run to test code
-    dataset = dataset.take(10)
+    # dataset = dataset.take(10)
+
+
     # #only keep English examples using langdetect based on the 'chosen' content, WARNING: takes about 28 minutes on CPU
     # def is_english(example):
     #     try:
@@ -162,10 +136,11 @@ def load_and_preprocess_data():
 if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
 
-    cli_config = chz.entrypoint(CLIConfig)
-
     #TODO:load model from checkpoint(eventually) and use for DPOTrainer
     model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B")#checkpoint_path)
+    model.gradient_checkpointing_enable()
+    model.config.use_cache = False
+
     #load corresponding tokenizer of same model
     tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
 
@@ -173,19 +148,17 @@ if __name__ == "__main__":
     print("\n\n=== NOW LOADING AND PREPROCESSING DATA ===")
     training_data = load_and_preprocess_data()
 
-    #adjust to be path to sft weights
-    checkpoint_path = "./checkpoint...."
 
     #initialize dpo configurations(hyperparameters) for training
     training_args = DPOConfig(
         learning_rate=1e-6,
-        max_length=4000,                #max length for tokenized sequence
+        max_length=1028,                #max length for tokenized sequence
         loss_type='sigmoid',
-        output_dir="OSC_DPO", 
+        output_dir="OSC_DPO_TRAINED", 
 
-        per_device_train_batch_size=4,
-        per_device_eval_batch_size=4,
-        gradient_accumulation_steps=8,  #8*4 = 32 for effective batch size
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
+        gradient_accumulation_steps=16,  #8*4 = 32 for effective batch size
         
         logging_steps=10
         )
@@ -194,10 +167,3 @@ if __name__ == "__main__":
     dpoModel = PREFTrainer(model=model, tokenizer=tokenizer, train_dataset=training_data, val_dataset=training_data, training_args=training_args)
     #run training
     dpoModel.train()
-
-
-"""Run using command:
-    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 save_every=1000 dpo_beta=0.1 max_steps=1000
-
-    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 dpo_beta=0.1
-"""
