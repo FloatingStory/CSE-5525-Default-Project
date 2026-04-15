@@ -28,7 +28,9 @@ python3 merge_model_and_checkpoint.py
 ###### ADJUST THE FOLLOWING IN THE <output_dir> TO PREVENT ERRORS WHEN RUNNING THE OLMES EVALUATION:
 
 Once the model is saved in the "output_dir" please do the following to allow the olmes eval dataset to run smoothly:
+
     1. Make a copy and place the chat_template.jinja file found in this folder into the "output_dir", this chat template is from Llama-3.2-1b-Instruct model (as suggested in teams)
+    
     2. In the "output_dir" go into tokenizer_config.json and adjust the line with "tokenizer_class: <some_other_thing>" to "tokenizer_class": "PreTrainedTokenizerFast"
 
 
