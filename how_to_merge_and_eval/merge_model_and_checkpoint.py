@@ -1,9 +1,11 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
+#adapter_path should point to checkpoint folder
+#output_dir is the directory name of where to place merged adapter and model
 base_model_name = "meta-llama/Llama-3.2-1B"
-adapter_path = "./sft_best_checkpoint"
-output_dir = "./MERGED_SFT_MODEL"
+adapter_path = "./OSC_DPOQLORA_TRAINED/checkpoint-11822"
+output_dir = "./MERGED_DPO_TRAINED_MODEL"
 
 #load base model
 model = AutoModelForCausalLM.from_pretrained(
@@ -23,8 +25,3 @@ model.save_pretrained(output_dir)
 #save tokenizer
 tokenizer = AutoTokenizer.from_pretrained(base_model_name)
 tokenizer.save_pretrained(output_dir)
-
-
-#once the model is saved in the "output_dir" please do the following to allow the olmes eval dataset to run smoothly:
-    #1. Make a copy and place the chat_template.jinja file from the Llama-3.2-1b-Instruct model into the "output_dir"
-    #2. In the "output_dir" go into tokenizer_config.json and adjust to "tokenizer_class": "PreTrainedTokenizerFast"

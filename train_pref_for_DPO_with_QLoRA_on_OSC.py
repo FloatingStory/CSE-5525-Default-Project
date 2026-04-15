@@ -5,36 +5,18 @@ from datasets import load_dataset
 
 from datetime import datetime
 
-import chz
-
-from tinker_cookbook import checkpoint_utils, cli_utils
-from tinker_cookbook.preference import train_dpo
-from tinker_cookbook.preference.dpo_datasets import (
-    DPODatasetBuilderFromComparisons,
-)
-
-from tinker_cookbook.supervised.types import ChatDatasetBuilder, ChatDatasetBuilderCommonConfig
-from tinker_cookbook.utils.lr_scheduling import LRSchedule
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from trl import DPOTrainer, DPOConfig
 from torch.utils.data import DataLoader
 #=====
-import logging
-import re
 from typing import cast
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+import torch
+from peft import LoraConfig, get_peft_model, TaskType
 
-import chz
-import datasets
-import pandas as pd
 
-from tinker_cookbook import renderers
-from tinker_cookbook.preference.preference_datasets import ComparisonDatasetBuilder
-from tinker_cookbook.preference.types import (
-    Comparison,
-    LabeledComparison,
-)
 
 # from langdetect import detect
 
@@ -49,7 +31,7 @@ class PREFTrainer:
 
     def train(self):
         # Implement the training loop here
-        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset, eval_dataset=self.val_dataset)
+        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset)
         trainer.train()
         #saving model in OSC_DPO folder
         trainer.save_model("OSC_DPO_TRAINED")
@@ -93,10 +75,9 @@ def load_and_preprocess_data():
     #load allenai/olmo-2-0425-1b-preference-mix dataset from huggingface
     dataset = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
 
-    #randomly shuffle with set seed
-    dataset = dataset.shuffle(seed=0)
     #small run to test code
-    dataset = dataset.take(1000)
+    dataset = dataset.take(10)
+
 
     # #only keep English examples using langdetect based on the 'chosen' content, WARNING: takes about 28 minutes on CPU
     # def is_english(example):
@@ -127,49 +108,85 @@ def load_and_preprocess_data():
     print(dataset)
     print(dataset[1])#['prompt'])
 
-    split_dataset = dataset.train_test_split(test_size=0.1, seed=0)
-    train_dataset = split_dataset["train"]
-    val_dataset = split_dataset["test"]
-
     # print(f"\n\nFirst item in dataset parsed out ===")
     # print(dataset[1]['prompt'])
     # print(dataset[1]['chosen'])
     # print(dataset[1]['rejected'])
-    return train_dataset, val_dataset
-    # return dataset
+    return dataset
 
 
 if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
 
+    #use for quantization condig
+    bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",          #best quality 4-bit quant
+    bnb_4bit_use_double_quant=True,     #extra memory savings
+    bnb_4bit_compute_dtype=torch.bfloat16  #or torch.float16
+    )   
+
+
     #TODO:load model from checkpoint(eventually) and use for DPOTrainer
-    model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B")#checkpoint_path)
-    model.gradient_checkpointing_enable()
-    model.config.use_cache = False
+    model = AutoModelForCausalLM.from_pretrained(
+        "./MERGED_SFT_MODEL",
+        quantization_config=bnb_config,
+        device_map="auto"
+    )
+    #checkpoint_path)
+    # model.gradient_checkpointing_enable()
+    # model.config.use_cache = False
+
+    #PEFT - the LoRA Adapters to train on
+    lora_config = LoraConfig(
+    r=16,                    #rank (8–32 typical)
+    lora_alpha=32,
+    lora_dropout=0.05,
+    bias="none",
+    task_type=TaskType.CAUSAL_LM,
+
+    # target modules for attention and linear:
+    target_modules=[
+        "q_proj",
+        "v_proj",
+        "k_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj", 
+        "down_proj"
+    ]
+    )
+
+    model = get_peft_model(model, lora_config)
+    print("======TRAINABLE PARAMETERS: ========")
+    model.print_trainable_parameters()
 
     #load corresponding tokenizer of same model
     tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
-
+    tokenizer.pad_token = tokenizer.eos_token
 
     print("\n\n=== NOW LOADING AND PREPROCESSING DATA ===")
-    training_data, validation_data = load_and_preprocess_data()
+    training_data = load_and_preprocess_data()
 
 
     #initialize dpo configurations(hyperparameters) for training
     training_args = DPOConfig(
-        learning_rate=1e-6,
+        learning_rate=1e-4,             #higher learning rate for LoRA
         max_length=1028,                #max length for tokenized sequence
         loss_type='sigmoid',
         output_dir="OSC_DPO_TRAINED", 
 
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=1,
-        gradient_accumulation_steps=16,  #8*4 = 32 for effective batch size
+        per_device_train_batch_size=4,
+        per_device_eval_batch_size=4,
+        gradient_accumulation_steps=8,  
+        num_train_epochs=1,
         
-        logging_steps=10
-        )
+        logging_steps=10,
+        bf16=True,  
+        optim="paged_adamw_8bit"
+    )
 
     #initialize PREFTrainer
-    dpoModel = PREFTrainer(model=model, tokenizer=tokenizer, train_dataset=training_data, val_dataset=validation_data, training_args=training_args)
+    dpoModel = PREFTrainer(model=model, tokenizer=tokenizer, train_dataset=training_data, val_dataset=training_data, training_args=training_args)
     #run training
     dpoModel.train()
