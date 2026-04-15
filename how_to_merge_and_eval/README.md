@@ -1,7 +1,7 @@
 Works with python 3.11.13.
 
 To set up venv to merge please follow these instructions:
-```
+```bash
 pip install uv
 
 #download python 3.11.13 and then
@@ -35,7 +35,7 @@ Once the model is saved in the "output_dir" please do the following to allow the
 ===================================================================================
 To set up olmes evaluation please follow these instructions, this uses a different venv:
 
-```
+```bash
 #follow "Running Evaluations" part in the main README.md (not this README but the one provided by prof)
 
 #your_path not including the start of the default project directory obtained by loading from github
@@ -59,7 +59,7 @@ bash for_sarah_sbatch_sft2.sh
 =====================
 
 You can then extract primary scores once olmes evaluation is done by running:
-```
+```bash
 #adjust the list_of_paths variable as specified in json_olmes_eval_all_metrics_extractor.py, then you can run:
 python3 json_olmes_eval_all_metrics_extractor.py 
 ```
