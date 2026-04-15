@@ -24,7 +24,7 @@ export HF_TOKEN=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
 python3 merge_model_and_checkpoint.py 
 ```
 
-########## AFTER RUN COMPLETE: IMPORTANT ADJUSTMENTS REQUIRED TO WHERE EVER YOU SAVED THE MERGED MODEL (whatever <output_dir> is)
+AFTER RUN COMPLETE: IMPORTANT ADJUSTMENTS REQUIRED TO WHERE EVER YOU SAVED THE MERGED MODEL (whatever <output_dir> is)
 ###### ADJUST THE FOLLOWING IN THE <output_dir> TO PREVENT ERRORS WHEN RUNNING THE OLMES EVALUATION:
 
 Once the model is saved in the "output_dir" please do the following to allow the olmes eval dataset to run smoothly:
