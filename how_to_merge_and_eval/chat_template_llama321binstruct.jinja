@@ -64,6 +64,17 @@
     {{- first_user_message + "<|eot_id|>"}}
 {%- endif %}
 
+
+////////////////////////
+{{ bos_token }}
+{% for message in messages %}
+<|start_header_id|>{{ message.role }}<|end_header_id|>
+
+{{ message.content }}<|eot_id|>
+{% endfor %}
+<|start_header_id|>assistant<|end_header_id|>
+/////////////////////////////
+
 {%- for message in messages %}
     {%- if not (message.role == 'ipython' or message.role == 'tool' or 'tool_calls' in message) %}
         {{- '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' }}

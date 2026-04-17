@@ -1,8 +1,6 @@
 """
 This module implements the PREFTrainer class for training your model using preference optimization.
 """
-from datasets import load_dataset
-
 from datetime import datetime
 
 import chz
@@ -110,9 +108,9 @@ class CLIConfig:
     # Training parameters
     learning_rate: float = 1e-5
     lr_schedule: LRSchedule = "linear"
-    # num_epochs: int | None = 1
+    num_epochs: int | None = 1
     dpo_beta: float = 0.1           #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.
-    lora_rank: int | None = 16 #8
+    lora_rank: int | None = 32
     save_every: int | None = 0    #save checkpoint every N steps
     max_length: int | None = 512 #700 #2048 #8192
     batch_size: int = 32 #256
@@ -195,7 +193,7 @@ def cli_main(cli_config: CLIConfig):
         evaluator_builders=[],
         learning_rate=cli_config.learning_rate,
         lr_schedule=cli_config.lr_schedule,
-        # num_epochs=cli_config.num_epochs,
+        num_epochs=cli_config.num_epochs,
         dpo_beta=cli_config.dpo_beta,
         lora_rank=cli_config.lora_rank,
         base_url=cli_config.base_url,
@@ -260,27 +258,8 @@ def debug_run(cli_config: CLIConfig):
 #####end of referenced code
 
 
-
-def load_and_preprocess_data():
-
-    #automatically select corresponding tokenizer using the dataset
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
-
-    #load allenai/olmo-2-0425-1b-preference-mix dataset from huggingface
-    ds = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
-    #add a new column "dummy_prompt_text" filled with empty strings
-    ds = ds.map(lambda example: {"dummy_prompt_text": ""})
-
-    #use dummy_prompt_text, chosen, rejected for prompt, chosen, rejected keys respectively
-
-    print(f"\n\nFirst item in dataset:")
-    print(ds)
-    return ds
-
 if __name__ == "__main__":
     #use "huggingface-cli login" and login using a hf token in terminal for faster loading speed
-    
-    # training_data = load_and_preprocess_data()
 
     cli_config = chz.entrypoint(CLIConfig)
 
