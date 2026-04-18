@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     #initialize dpo configurations(hyperparameters) for training
     training_args = DPOConfig(
-        learning_rate=1e-6,
+        learning_rate=1e-5,
         max_length=1028,                #max length for tokenized sequence
         loss_type='sigmoid',
         output_dir="OSC_DPO_TRAINED", 

@@ -1,8 +1,10 @@
 from jinja2 import Environment, FileSystemLoader
+from tinker_cookbook.tokenizer_utils import get_tokenizer
+from transformers import AutoTokenizer
 
 # Load template from file
 env = Environment(loader=FileSystemLoader("."))
-template = env.get_template("chat_temp_rolecolon.jinja")
+template = env.get_template("chat_temp_customllama3.jinja")
 
 # Demo messages
 messages = [
@@ -18,5 +20,5 @@ output = template.render(messages=messages)
 print("=== RAW ===")
 print(output)
 
-print("\n=== REPR (IMPORTANT) ===")
+print("=== REPR (IMPORTANT) ===")
 print(repr(output))

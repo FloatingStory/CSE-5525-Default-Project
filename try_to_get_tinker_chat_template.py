@@ -12,8 +12,9 @@ def main():
 
     # 3. Define a sample conversation
     messages = [
-        {"role": "user", "content": "You are a helpful AI assistant."},
-        {"role": "assistant", "content": "Explain gravity in one sentence."},
+    {"role": "user", "content": "Hello"},
+    {"role": "assistant", "content": "Hi!"},
+    {"role": "user", "content": "What is 2+2?"}
     ]
 
     # 4. Build the prompt (this is the IMPORTANT call)
@@ -31,6 +32,8 @@ def main():
     # 7. Print result
     print("==== FULL PROMPT ====")
     print(prompt_str)
+
+    print(repr(prompt_str))
 
 
 if __name__ == "__main__":

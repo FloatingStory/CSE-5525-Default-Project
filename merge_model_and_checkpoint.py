@@ -20,8 +20,16 @@ model = model_adapt.merge_and_unload()
 #save merged model
 model.save_pretrained(output_dir)
 
-#save tokenizer
+#load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+
+with open("chat_template_llama3.jinja", "r", encoding="utf-8") as f:
+    chat_template = f.read()
+tokenizer.chat_template = chat_template
+
+tokenizer.tokenizer_class = "PreTrainedTokenizerFast"
+
+#save tokenizer
 tokenizer.save_pretrained(output_dir)
 
 

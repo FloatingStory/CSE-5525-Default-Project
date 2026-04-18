@@ -31,7 +31,7 @@ class PREFTrainer:
 
     def train(self):
         # Implement the training loop here
-        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset)
+        trainer = DPOTrainer(model=self.model, args=self.training_args, processing_class=self.tokenizer, train_dataset=self.train_dataset, eval_dataset=self.val_dataset)
         trainer.train()
         #saving model in OSC_DPO folder
         trainer.save_model("OSC_DPO_TRAINED")
@@ -75,8 +75,10 @@ def load_and_preprocess_data():
     #load allenai/olmo-2-0425-1b-preference-mix dataset from huggingface
     dataset = load_dataset("allenai/olmo-2-0425-1b-preference-mix", split="train")#, streaming=True)
 
+    #randomly shuffle with set seed
+    dataset = dataset.shuffle(seed=0)
     #small run to test code
-    dataset = dataset.take(10)
+    dataset = dataset.take(1000)
 
 
     # #only keep English examples using langdetect based on the 'chosen' content, WARNING: takes about 28 minutes on CPU
@@ -108,11 +110,15 @@ def load_and_preprocess_data():
     print(dataset)
     print(dataset[1])#['prompt'])
 
+    split_dataset = dataset.train_test_split(test_size=0.1, seed=0)
+    train_dataset = split_dataset["train"]
+    val_dataset = split_dataset["test"]
+
     # print(f"\n\nFirst item in dataset parsed out ===")
     # print(dataset[1]['prompt'])
     # print(dataset[1]['chosen'])
     # print(dataset[1]['rejected'])
-    return dataset
+    return train_dataset, val_dataset
 
 
 if __name__ == "__main__":
@@ -141,7 +147,7 @@ if __name__ == "__main__":
     lora_config = LoraConfig(
     r=16,                    #rank (8–32 typical)
     lora_alpha=32,
-    lora_dropout=0.05,
+    #lora_dropout=0.05,
     bias="none",
     task_type=TaskType.CAUSAL_LM,
 
@@ -166,12 +172,12 @@ if __name__ == "__main__":
     tokenizer.pad_token = tokenizer.eos_token
 
     print("\n\n=== NOW LOADING AND PREPROCESSING DATA ===")
-    training_data = load_and_preprocess_data()
+    training_data, validation_data = load_and_preprocess_data()
 
 
     #initialize dpo configurations(hyperparameters) for training
     training_args = DPOConfig(
-        learning_rate=1e-4,             #higher learning rate for LoRA
+        learning_rate=1e-5,             #higher learning rate for LoRA
         max_length=1028,                #max length for tokenized sequence
         loss_type='sigmoid',
         output_dir="OSC_DPO_TRAINED", 
@@ -187,6 +193,6 @@ if __name__ == "__main__":
     )
 
     #initialize PREFTrainer
-    dpoModel = PREFTrainer(model=model, tokenizer=tokenizer, train_dataset=training_data, val_dataset=training_data, training_args=training_args)
+    dpoModel = PREFTrainer(model=model, tokenizer=tokenizer, train_dataset=training_data, val_dataset=validation_data, training_args=training_args)
     #run training
     dpoModel.train()

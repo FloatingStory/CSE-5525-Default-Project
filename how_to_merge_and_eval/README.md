@@ -1,5 +1,7 @@
 Works with python 3.11.13.
 
+NOTE THAT: DATASETS GSM8K, IFEVAL, AND MBPP RUN FINE ON ALL OSC CLUSTERS, BUT XSTEST AND HARMBENCH RESULT IN "CUDA OUT OF MEMORY" in pitzer cluster - best fix: run olmes eval on OSC's Ascend Cluster
+
 To set up venv to merge please follow these instructions:
 ```bash
 pip install uv
@@ -29,7 +31,7 @@ AFTER RUN COMPLETE: IMPORTANT ADJUSTMENTS REQUIRED TO WHERE EVER YOU SAVED THE M
 
 Once the model is saved in the "output_dir" please do the following to allow the olmes eval dataset to run smoothly:
 
-    1. Make a copy and place the chat_template.jinja file found in this folder into the "output_dir", this chat template is from Llama-3.2-1b-Instruct model (as suggested in teams)
+    1. Make a copy of chat_template_llama3.jinja (and rename to chat_template.jinja) and place the chat_template.jinja file found in this folder into the "output_dir", this chat template is from Llama-3.2-1b-Instruct model (as suggested in teams)
     
     2. In the "output_dir" go into tokenizer_config.json and adjust the line with "tokenizer_class: <some_other_thing>" to "tokenizer_class": "PreTrainedTokenizerFast"
 
@@ -38,7 +40,7 @@ Once the model is saved in the "output_dir" please do the following to allow the
 To set up olmes evaluation please follow these instructions, this uses a different venv:
 
 ```bash
-#follow "Running Evaluations" part in the main README.md (not this README but the one provided by prof)
+#follow "Running Evaluations" part in the main README.md (not this README but the one provided by prof (in parent directory))
 
 #your_path not including the start of the default project directory obtained by loading from github
 #activate olmes venv, must use this one specifically as it defaults to this
