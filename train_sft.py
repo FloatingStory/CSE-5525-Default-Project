@@ -28,7 +28,7 @@ class CLIConfig:
     batch_size: int = 32
     max_length: int = 1024
 
-    lora_rank: int = 32
+    lora_rank: int = 16
 
     log_path: str | None = None
     load_checkpoint_path: str | None = None
@@ -178,7 +178,6 @@ def main(cli_config: CLIConfig):
         evaluator_builders=[],
         infrequent_evaluator_builders=[],
         learning_rate=cli_config.learning_rate,
-        warmup_steps=5000,
         lr_schedule="linear",
         num_epochs=cli_config.num_epochs,
         base_url=cli_config.base_url,
