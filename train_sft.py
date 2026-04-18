@@ -17,14 +17,99 @@ from tinker_cookbook.utils.lr_scheduling import LRSchedule
 # $env:TINKER_API_KEY="your_key_here"
 
 @chz.chz
+class CLIConfig:
+    model_name: str = "meta-llama/Llama-3.2-1B"
+    dataset: str = "tulu3"
+
+    train_on_what: renderers.TrainOnWhat = "last_assistant_message"
+
+    learning_rate: float = 1e-4
+    num_epochs: int = 1
+    batch_size: int = 32
+    max_length: int = 1024
+
+    lora_rank: int = 32
+
+    log_path: str | None = None
+    load_checkpoint_path: str | None = None
+    renderer_name: str | None = "llama3"
+    base_url: str | None = None
+
+    save_every: int = 200
+    eval_every: int = 1000
+    infrequent_eval_every: int = 1000
+
+    wandb_project: str | None = None
+    wandb_name: str | None = None
+
+    behavior_if_log_dir_exists: cli_utils.LogdirBehavior = "overwrite"
+
+    max_samples: int = 0
+    english_only: bool = False
+    use_mixture: bool = False # instruction 40%, reasoning 30%, coding 30%
+
+@chz.chz
 class Olmo2Builder(ChatDatasetBuilder):
+    cli_config: CLIConfig
     def __call__(self) -> tuple[SupervisedDataset, SupervisedDataset]:
+
+        def isEnglish(example):
+            # for message in example["messages"][:5]:
+            #     if not all(ord(char) < 128 for char in message["content"]):
+            #         return False
+            text = " ".join([m["content"] for m in example["messages"][:5]])
+
+            if len(text) == 0:
+                return False
+
+            ascii_ratio = sum(c.isascii() for c in text) / len(text)
+
+            return ascii_ratio > 0.9
+            
+        def classify(example):
+            text = example["messages"][-1]["content"].lower()
+
+            if "def " in text or "return" in text or "code" in text or "program" in text:
+                return "coding"
+            elif "step by step" in text or "therefore" in text or "proof by contradiction" in text or "mathematical proof" in text:
+                return "reasoning"
+            else:
+                return "instruction"  
+            
         dataset = datasets.load_dataset("allenai/tulu-3-sft-olmo-2-mixture-0225")
         dataset = cast(datasets.DatasetDict, dataset)
         dataset = dataset["train"]
         dataset = dataset.shuffle(seed=0)
-        test_ds = dataset.take(1024)
-        train_ds = dataset.skip(1024)
+
+        # filter english if specified
+        if self.cli_config.english_only:
+            dataset = dataset.filter(isEnglish)
+            print("[INFO] Filtered to English only. Remaining samples:", len(dataset))
+        if self.cli_config.use_mixture:
+            dataset = dataset.map(lambda x: {"type": classify(x)})
+
+            instruction_ds = dataset.filter(lambda x: x["type"] == "instruction")
+            reasoning_ds = dataset.filter(lambda x: x["type"] == "reasoning")
+            coding_ds = dataset.filter(lambda x: x["type"] == "coding")
+
+            max_n = self.cli_config.max_samples
+            if (max_n == 0):
+                max_n = len(dataset)
+
+            inst_n = int(max_n * 0.4)
+            reas_n = int(max_n * 0.3)
+            code_n = int(max_n * 0.3)
+
+            instruction_ds = instruction_ds.select(range(min(len(instruction_ds), inst_n)))
+            reasoning_ds = reasoning_ds.select(range(min(len(reasoning_ds), reas_n)))
+            coding_ds = coding_ds.select(range(min(len(coding_ds), code_n)))
+
+            dataset = datasets.concatenate_datasets([instruction_ds, reasoning_ds, coding_ds])
+            dataset = dataset.shuffle(seed=0)
+        if self.cli_config.max_samples > 0:
+            dataset = dataset.select(range(min(len(dataset), self.cli_config.max_samples)))
+        test_ds = dataset.take(2000)
+        train_ds = dataset.skip(2000)
 
         train_on_what = (
             renderers.TrainOnWhat(self.common_config.train_on_what)
@@ -43,35 +128,7 @@ class Olmo2Builder(ChatDatasetBuilder):
             test_ds, batch_size=self.common_config.batch_size, map_fn=map_fn
         )
 
-@chz.chz
-class CLIConfig:
-    model_name: str = "meta-llama/Llama-3.2-1B"
-    dataset: str = "tulu3"
-
-    train_on_what: renderers.TrainOnWhat = "last_assistant_message"
-
-    learning_rate: float = 1e-4
-    num_epochs: int = 1
-    batch_size: int = 32
-    max_length: int = 1024
-
-    lora_rank: int = 32
-
-    log_path: str | None = None
-    load_checkpoint_path: str | None = None
-    renderer_name: str | None = "role_colon"
-    base_url: str | None = None
-
-    save_every: int = 50
-    eval_every: int = 50
-    infrequent_eval_every: int = 200
-
-    wandb_project: str | None = None
-    wandb_name: str | None = None
-
-    behavior_if_log_dir_exists: cli_utils.LogdirBehavior = "overwrite"
-
-
+          
 def get_dataset_builder(cfg: CLIConfig):
     common_config = ChatDatasetBuilderCommonConfig(
         model_name_for_tokenizer=cfg.model_name,
@@ -90,7 +147,7 @@ def get_dataset_builder(cfg: CLIConfig):
             file_path=cfg.dataset,
         )
     elif cfg.dataset == "allenai/tulu-3-sft-olmo-2-mixture-0225":
-        return Olmo2Builder(common_config=common_config)
+        return Olmo2Builder(common_config=common_config, cli_config=cfg)
 
     else:
         raise ValueError(f"Unknown dataset: {cfg.dataset}")
@@ -121,6 +178,7 @@ def main(cli_config: CLIConfig):
         evaluator_builders=[],
         infrequent_evaluator_builders=[],
         learning_rate=cli_config.learning_rate,
+        warmup_steps=5000,
         lr_schedule="linear",
         num_epochs=cli_config.num_epochs,
         base_url=cli_config.base_url,

@@ -1,0 +1,39 @@
+### repo: F:\GitHub\CSE-5525-Default-Project @ 3b68cec42af84e22c11968a874e1b63108a2622e
+modules: tinker_cookbook
+-- repo-wide (vs HEAD, staged+unstaged) --
+diff --git a/save_checkpoint.py b/save_checkpoint.py
+index 290dfb0..9fa5b16 100644
+--- a/save_checkpoint.py
++++ b/save_checkpoint.py
+@@ -84,4 +84,16 @@ r.raise_for_status()
+ with open(OUTPUT_FILE, "wb") as f:
+     f.write(r.content)
+ 
+-print(f"[DONE] Saved to {OUTPUT_FILE}")
+\ No newline at end of file
++print(f"[DONE] Saved to {OUTPUT_FILE}")
++
++
++
++# =========================
++# checkpoint output
++# [INFO] Best step: 30, loss: 0.1397583782672882
++# [INFO] Selected checkpoint: 000050
++# [INFO] Step diff: 20
++# [INFO] Tinker path: tinker://92cb9574-7384-5473-8f5f-4930fcb50e2f:train:0/sampler_weights/000050
++# Creating checkpoint archive for run id: 92cb9574-7384-5473-8f5f-4930fcb50e2f:train:0 checkpoint id: sampler_weights/000050 (this may take a while)
++# [INFO] Downloading...
++# [DONE] Saved to sft_best_checkpoint.tar.gz
+\ No newline at end of file
+diff --git a/train_sft.py b/train_sft.py
+index cca99d2..93e0175 100644
+--- a/train_sft.py
++++ b/train_sft.py
+@@ -23,6 +23,8 @@ class Olmo2Builder(ChatDatasetBuilder):
+         dataset = cast(datasets.DatasetDict, dataset)
+         dataset = dataset["train"]
+         dataset = dataset.shuffle(seed=0)
++        dataset = dataset.select(range(11024)) # only use 10000 for training
++
+         test_ds = dataset.take(1024)
+         train_ds = dataset.skip(1024)
