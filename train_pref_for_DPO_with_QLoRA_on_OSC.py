@@ -37,31 +37,9 @@ class PREFTrainer:
         trainer.save_model("OSC_DPO_TRAINED")
 
 
+#preprocess samples
 def prompt_and_reponses(examples) -> dict[str, str, str]:
-    # return {
-    #     "prompt" : [{"role": "user", "content": examples["chosen"][0]["content"]}],
-    #     "chosen": [{"role": "assistant", "content": examples["chosen"][1]["content"]}],
-    #     "rejected": [{"role": "assistant", "content": examples["rejected"][1]["content"]}],
-    # }
-
-    # return {
-    #     "prompt" : f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
-    #     "chosen": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
-    #     "rejected": f"<|start_header_id|>assistant<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
-    # }
-
-    # return {
-    #     "prompt" : f"<|begin_of_text|><|start_header_id|>{examples['chosen'][0]['role']}<|end_header_id|>\n{examples['chosen'][0]['content']}\n<|eot_id|>",
-    #     "chosen": f"<|start_header_id|>{examples['chosen'][1]['role']}<|end_header_id|>\n{examples['chosen'][1]['content']}\n<|eot_id|>",
-    #     "rejected": f"<|start_header_id|>{examples['rejected'][1]['role']}<|end_header_id|>\n{examples['rejected'][1]['content']}\n<|eot_id|>",
-    # }
-
-    # return {
-    #     "prompt" : examples["chosen"][0]["content"],
-    #     "chosen": examples["chosen"][1]["content"],
-    #     "rejected": examples["rejected"][1]["content"],
-    # }
-
+ 
     return {
         "prompt" : examples["chosen"][0]["content"].strip(),
         "chosen": " " + examples["chosen"][1]["content"].strip(),
@@ -92,9 +70,6 @@ def load_and_preprocess_data():
 
     # dataset = dataset.filter(is_english)
 
-    # test_dataset = dataset.take(256)
-    # train_dataset = dataset.skip(256)
-
     #get column names from olmo
     original_columns = dataset.column_names
 
@@ -104,7 +79,6 @@ def load_and_preprocess_data():
         batched=False,
         remove_columns=original_columns
     )
-    # dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     print(f"\n\n=== First item in dataset ===")
     print(dataset)
@@ -139,9 +113,6 @@ if __name__ == "__main__":
         quantization_config=bnb_config,
         device_map="auto"
     )
-    #checkpoint_path)
-    # model.gradient_checkpointing_enable()
-    # model.config.use_cache = False
 
     #PEFT - the LoRA Adapters to train on
     lora_config = LoraConfig(
@@ -151,7 +122,7 @@ if __name__ == "__main__":
     bias="none",
     task_type=TaskType.CAUSAL_LM,
 
-    # target modules for attention and linear:
+    #target modules for attention and linear:
     target_modules=[
         "q_proj",
         "v_proj",
@@ -170,6 +141,9 @@ if __name__ == "__main__":
     #load corresponding tokenizer of same model
     tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
     tokenizer.pad_token = tokenizer.eos_token
+    #save memory usage
+    model.gradient_checkpointing_enable()
+    model.config.use_cache = False
 
     print("\n\n=== NOW LOADING AND PREPROCESSING DATA ===")
     training_data, validation_data = load_and_preprocess_data()

@@ -25,19 +25,23 @@ list_of_datasets = [
 ]
 
 #FOR .JSONL files, assumes directory is located in the same directory as this file, feel free to adjust
-#extracts primary scores from metrics-all.jsonl
+#extracts primary scores from metric-all.jsonl
 for dataset in list_of_datasets:
     for filename in list_of_paths:
-        with open(f"./{filename}-eval-{dataset}/metrics-all.jsonl", "r") as f:
-            for line in f:
-                data = json.loads(line)
-                model_file = data.get("model_config", {}).get("model")
-                model_file = model_file.split("/")[-1]  #get directory that holds model used for eval
+        path = f"./{filename}-eval-{dataset}/metrics-all.jsonl"
+        try:
+            with open(path, "r") as f:
+                for line in f:
+                    data = json.loads(line)
+                    model_file = data.get("model_config", {}).get("model")
+                    model_file = model_file.split("/")[-1]  #get directory that holds model used for eval
 
-                task = data.get("task_config", {}).get("task_name")
-                score = data.get("metrics", {}).get("primary_score")
-                print(f"Model {model_file} for dataset {task}: {score}")
-                # print(json.dumps(data, indent=2))     #print each item in jsonl
+                    task = data.get("task_config", {}).get("task_name")
+                    score = data.get("metrics", {}).get("primary_score")
+                    print(f"{filename} Model {model_file} for dataset {task}: {score}")
+                    # print(json.dumps(data, indent=2))     #print each item in jsonl
+        except FileNotFoundError:
+            print(f"Skipping missing file: {path}")
     print("\n")
 
 
