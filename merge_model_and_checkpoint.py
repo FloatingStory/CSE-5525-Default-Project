@@ -23,10 +23,12 @@ model.save_pretrained(output_dir)
 #load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(base_model_name)
 
+#add custom chat template automatically, works
 # with open("chat_template_llama3.jinja", "r", encoding="utf-8") as f:
 #     chat_template = f.read()
 # tokenizer.chat_template = chat_template
 
+#this does not work, must go into tokenizer_config and manually change
 # tokenizer.tokenizer_class = "PreTrainedTokenizerFast"
 
 #save tokenizer

@@ -110,7 +110,7 @@ class CLIConfig:
     lr_schedule: LRSchedule = "linear"
     num_epochs: int | None = 1
     dpo_beta: float = 0.1           #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.
-    lora_rank: int | None = 32
+    lora_rank: int | None = 16
     save_every: int | None = 0    #save checkpoint every N steps
     max_length: int | None = 512 #700 #2048 #8192
     batch_size: int = 32 #256
@@ -124,7 +124,7 @@ class CLIConfig:
     base_url: str | None = None
 
     # DPO-specific parameters
-    reference_model_name: str | None = None
+    reference_model_name: str | None = "meta-llama/Llama-3.2-1B"
 
     behavior_if_log_dir_exists: cli_utils.LogdirBehavior = "ask"
 

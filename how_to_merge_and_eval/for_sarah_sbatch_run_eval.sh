@@ -27,6 +27,8 @@ dataset_name=(
     "ifeval"
     "harmbench::default"
     "xstest::default"
+    "codex_humaneval"           #for code generation extension
+    "codex_humanevalplus"
 )
 # model_path=allenai/OLMo-2-0425-1B-SFT
 #model_path=allenai/OLMo-2-0425-1B-SFT
@@ -36,13 +38,19 @@ output_path=/users/PAS2930/cwang/CSE5525DefaultProject/CSE-5525-Default-Project/
 
 for dataset in "${dataset_name[@]}"; do
     echo "Evaluating on ${dataset}..."
-
+    if [ "${dataset}" == "gsm8k" ]; then
+        num_shots=8
+    elif [ "${dataset}" == "codex_humaneval" ]; then
+        num_shots=3
+    else
+        num_shots=0
+    fi
     uv run olmes \
         --model ${model_path} \
         --task ${dataset} \
         --output-dir $output_path-eval-${dataset} \
-	--batch-size 1 \
-	--gpus 1 \
-	--num-workers 1
-	#--model-args{max_length":1024}'
+        --num-shots ${num_shots} \
+        --batch-size 1 \
+        --gpus 1 \
+        --num-workers 1
 done

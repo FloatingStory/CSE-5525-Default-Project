@@ -2,6 +2,8 @@ Works with python 3.11.13.
 
 NOTE THAT: DATASETS GSM8K, IFEVAL, AND MBPP RUN FINE ON ALL OSC CLUSTERS, BUT XSTEST AND HARMBENCH RESULT IN "CUDA OUT OF MEMORY" in pitzer cluster - best fix: run olmes eval on OSC's Ascend Cluster
 
+dashboard for OSC found: https://ondemand.osc.edu/pun/sys/dashboard
+
 To set up venv to merge please follow these instructions:
 ```bash
 pip install uv
@@ -53,11 +55,19 @@ export HF_TOKEN=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
 #If you are in the olmes venv, you can run python -m pip install -r ai2-olmes_venv_requirements.txt or use "python -m pip freeze > <file_name>.txt" and use diff to compare differences 
 
 #assuming you are in CSE-5525-Default-Project directory
-#the "for_sarah_sbatch_sft2.sh" is similar to the run_eval.sh provided by default but you must adjust the following variables in it:
+#the "for_sarah_sbatch_run_eval.sh" is similar to the run_eval.sh provided by default but you must adjust the following variables in it:
 #model_path: should point to directory that holds merged model
 #output_path: name of directory to place olmes eval output
+
+#Then move the "for_sarah_sbatch_run_eval.sh" files into the "evals" directory so it is in the same directory as the olmes folder
+
+#You can do this if you are requested and are running an interactive job:
 cd evals
-bash for_sarah_sbatch_sft2.sh
+bash for_sarah_sbatch_run_eval.sh
+
+#Or you can do sbatch on OSC's Ascend or Cardinal cluster:
+#check eval_olmes_sbatch.sh
+sbatch eval_olmes_sbatch.sh
 ```
 
 =====================
