@@ -4,6 +4,18 @@ NOTE THAT: DATASETS GSM8K, IFEVAL, AND MBPP RUN FINE ON ALL OSC CLUSTERS, BUT XS
 
 dashboard for OSC found: https://ondemand.osc.edu/pun/sys/dashboard
 
+
+```bash
+#get your github token and allow access to repos, you can replace the "{token}" with your whole github token(should start with "github_pat_")
+
+#You can download our github main branch by calling:
+!git clone --recurse-submodules https://{token}@github.com/FloatingStory/CSE-5525-Default-Project.git
+
+#or do the following to download this dpo branch
+!git clone -b dpo --recurse-submodules https://{token}@github.com/FloatingStory/CSE-5525-Default-Project.git
+```
+
+
 To set up venv to merge please follow these instructions:
 ```bash
 pip install uv
