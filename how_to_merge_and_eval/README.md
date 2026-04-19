@@ -4,8 +4,10 @@ NOTE THAT: DATASETS GSM8K, IFEVAL, AND MBPP RUN FINE ON ALL OSC CLUSTERS, BUT XS
 
 dashboard for OSC found: https://ondemand.osc.edu/pun/sys/dashboard , after you login you can click on Clusters then any of the shell access or...
 
-you can go to your local device terminal and run:  ssh -X -C {your_OSC_username}@ascend.osc.edu
+you can go to your local device terminal and run: ssh -X -C {your_OSC_username}@ascend.osc.edu
 
+You should be able to do setup without requesting an interactive job allocation but if you get errors, once you are logged in you can run: salloc --nodes=1 --gpus=1 --time=180 -A PAS3272
+And then when you allocates you a job do: ssh {jobid}
 
 ```bash
 #get your github token and allow access to repos, you can replace the "{token}" with your whole github token(should start with "github_pat_")
