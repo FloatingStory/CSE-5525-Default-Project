@@ -2,7 +2,9 @@ Works with python 3.11.13.
 
 NOTE THAT: DATASETS GSM8K, IFEVAL, AND MBPP RUN FINE ON ALL OSC CLUSTERS, BUT XSTEST AND HARMBENCH RESULT IN "CUDA OUT OF MEMORY" in pitzer cluster - best fix: run olmes eval on OSC's Ascend Cluster
 
-dashboard for OSC found: https://ondemand.osc.edu/pun/sys/dashboard
+dashboard for OSC found: https://ondemand.osc.edu/pun/sys/dashboard , after you login you can click on Clusters then any of the shell access or...
+
+you can go to your local device terminal and run:  ssh -X -C {your_OSC_username}@ascend.osc.edu
 
 
 ```bash
