@@ -40,6 +40,10 @@ export HF_TOKEN=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
 #output_dir adjust to ensure where the merged model is placed
 #then run
 python3 merge_model_and_checkpoint.py 
+
+#or use sbatch:
+#check merge_model.sh and adjust so the "source .../bin/activate" is set to your path and not mine
+sbatch merge_model.sh
 ```
 
 AFTER RUN COMPLETE: IMPORTANT ADJUSTMENTS REQUIRED TO WHERE EVER YOU SAVED THE MERGED MODEL (whatever <output_dir> is)
@@ -80,7 +84,7 @@ cd evals
 bash for_sarah_sbatch_run_eval.sh
 
 #Or you can do sbatch on OSC's Ascend or Cardinal cluster:
-#check eval_olmes_sbatch.sh
+#check eval_olmes_sbatch.sh and adjust so the "source .../bin/activate" is set to your path and not mine
 sbatch eval_olmes_sbatch.sh
 ```
 
