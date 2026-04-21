@@ -86,10 +86,10 @@ class OLMOComparisonBuilder(ComparisonDatasetBuilder):
         chosen_response = example["chosen"][1]["content"]
         rejected_response = example["rejected"][1]["content"]
 
-        # prompt_conversation: list[renderers.Message] = [{"role": "user", "content": instruction}]
+        prompt_conversation: list[renderers.Message] = [{"role": "user", "content": instruction}]
 
         comparison = Comparison(
-            prompt_conversation=instruction, # prompt_conversation=prompt_conversation,
+            prompt_conversation=prompt_conversation, #instruction, # prompt_conversation=prompt_conversation,
             completion_A=[{"role": "assistant", "content": chosen_response}],
             completion_B=[{"role": "assistant", "content": rejected_response}],
         )
@@ -273,5 +273,5 @@ if __name__ == "__main__":
 """Run using command:
     python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 save_every=1000 dpo_beta=0.1 max_steps=1000
 
-    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=8 dpo_beta=0.1
+    python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=llama3 learning_rate=1e-5 lora_rank=16 dpo_beta=0.1 save_every=200 eval_every=1000 load_checkpoint_path=./sft_full_batch32_lora16_lr1e-4_run
 """

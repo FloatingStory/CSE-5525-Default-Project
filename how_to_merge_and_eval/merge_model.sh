@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=SBATCHmergemodeljob1    # Job name
 #SBATCH --output=SBATCHmergemodel_job_output.%j.out # Standard output and error log
-#SBATCH --time=03:00:00         # Wall clock limit (4 hours)
+#SBATCH --time=00:30:00         # Wall clock limit (4 hours)
 #SBATCH --nodes=1               # Request one node
 #SBATCH --gpus=1               # Request gpu
 #SBATCH --ntasks=1              # Run a single task

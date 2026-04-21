@@ -9,6 +9,10 @@ you can go to your local device terminal and run: ssh -X -C {your_OSC_username}@
 You should be able to do setup without requesting an interactive job allocation but if you get errors, once you are logged in you can run: salloc --nodes=1 --gpus=1 --time=180 -A PAS3272
 And then when you allocates you a job do: ssh {jobid}
 
+Although not required, the load_base_llama_model.py contains the logic to load the llama-3.2-1b base model locally.
+
+NOTE THAT YOU WANT TO MAKE SURE ALL VENV YOU ARE IN HAVE A "TRANSFORMERS" LIBRARY LESS THAN 5.0.0 to replicate (recommended to just use the olmes venv for everything - just make sure transformers version is less than 5.0.0)
+
 ```bash
 #get your github token and allow access to repos, you can replace the "{token}" with your whole github token(should start with "github_pat_")
 
@@ -32,7 +36,7 @@ uv venv --python 3.11.13 .venv_for_merging_model_and_checkpoints
 source .venv_for_merging_model_and_checkpoints/bin/activate
 
 #install proper requirement versions
-python -m pip install -r venv_for_merging_model_and_checkpoints_requirements.txt
+python -m pip install -r ai2-olmes_venv_requirements.txt
 
 #chelsea's read-only hugging face token, contains access to meta's llama models
 export HF_TOKEN=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
@@ -53,9 +57,9 @@ AFTER RUN COMPLETE: IMPORTANT ADJUSTMENTS REQUIRED TO WHERE EVER YOU SAVED THE M
 
 Once the model is saved in the "output_dir" please do the following to allow the olmes eval dataset to run smoothly:
 
-    1. Make a copy of chat_template_llama3.jinja (and rename to chat_template.jinja) and place the chat_template.jinja file found in this folder into the "output_dir", this chat template is based off the Tinker llama3renderer format
+    1. Make a copy of chat_template_customrolecolon.jinja (and rename to chat_template.jinja) and place the chat_template.jinja file found in this folder into the "output_dir", this chat template is based off the Tinker role_colon Renderer format
     
-    2. In the "output_dir" go into tokenizer_config.json and adjust the line with "tokenizer_class: <some_other_thing>" to "tokenizer_class": "PreTrainedTokenizerFast"
+    2. In the "output_dir" go into tokenizer_config.json and adjust the line with "tokenizer_class: <some_other_thing>" to "tokenizer_class": "PreTrainedTokenizerFast" (or make sure it is set to that by default)
 
 
 ===================================================================================
