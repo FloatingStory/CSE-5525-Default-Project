@@ -4,10 +4,10 @@ import tinker
 
 from tinker_cookbook import checkpoint_utils
 
-LOG_PATH = "logs\sft-meta-llama-Llama-3.2-1B-20260330-103522"
-METRICS_FILE = f"{LOG_PATH}/metrics.jsonl"
+# LOG_PATH = "logs\sft-meta-llama-Llama-3.2-1B-20260418-160328"
+# METRICS_FILE = f"{LOG_PATH}/metrics.jsonl"
 OUTPUT_FILE = "sft_best_checkpoint.tar.gz"
-CHECKPOINTS_FILE = f"{LOG_PATH}/checkpoints.jsonl"
+# CHECKPOINTS_FILE = f"{LOG_PATH}/checkpoints.jsonl"
 
 # # =========================
 # # 1. find best step from metrics.jsonl
@@ -19,7 +19,7 @@ CHECKPOINTS_FILE = f"{LOG_PATH}/checkpoints.jsonl"
 #     for line in f:
 #         data = json.loads(line)
 
-#         loss = data.get("train_mean_nll")
+#         loss = data.get("test/nll")
 #         step = data.get("step")
 
 #         if loss is None or step is None:
@@ -72,7 +72,7 @@ rest_client = service_client.create_rest_client()
 
 future = rest_client.get_checkpoint_archive_url_from_tinker_path(
     # best_ckpt['sampler_path']
-    "tinker://b5ec366a-0335-5964-ac0a-9abc3b5289db:train:0/sampler_weights/final"
+    "tinker://59a94dc0-8133-53e6-b02c-291509641b08:train:0/sampler_weights/015000"
 )
 
 url = future.result().url

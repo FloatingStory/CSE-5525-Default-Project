@@ -32,7 +32,7 @@ class CLIConfig:
 
     log_path: str | None = None
     load_checkpoint_path: str | None = None
-    renderer_name: str | None = "llama3"
+    renderer_name: str | None = "role_colon"
     base_url: str | None = None
 
     save_every: int = 200
@@ -47,6 +47,10 @@ class CLIConfig:
     max_samples: int = 0
     english_only: bool = False
     use_mixture: bool = False # instruction 40%, reasoning 30%, coding 30%
+
+    min_text_length: int = 100
+    max_text_length: int = 2000
+    length_filter_on: bool = False
 
 @chz.chz
 class Olmo2Builder(ChatDatasetBuilder):
@@ -75,6 +79,28 @@ class Olmo2Builder(ChatDatasetBuilder):
                 return "reasoning"
             else:
                 return "instruction"  
+            
+        def isValidLength(example):
+            # only check if assistant message has valid length
+            messages = example["messages"]
+
+            if len(messages) == 0:
+                return False
+            
+            last_msg = messages[-1]
+            
+            if "content" not in last_msg:
+                return False
+            
+            length = len(last_msg["content"])
+
+            if self.cli_config.min_text_length > 0 and length < self.cli_config.min_text_length:
+                return False
+
+            if self.cli_config.max_text_length > 0 and length > self.cli_config.max_text_length:
+                return False
+
+            return True
             
         dataset = datasets.load_dataset("allenai/tulu-3-sft-olmo-2-mixture-0225")
         dataset = cast(datasets.DatasetDict, dataset)
@@ -106,8 +132,16 @@ class Olmo2Builder(ChatDatasetBuilder):
 
             dataset = datasets.concatenate_datasets([instruction_ds, reasoning_ds, coding_ds])
             dataset = dataset.shuffle(seed=0)
+        if self.cli_config.length_filter_on:
+            before_len = len(dataset)
+            dataset = dataset.filter(isValidLength)
+            after_len = len(dataset)
+
+            print(f"[INFO] Length filter applied: {before_len} -> {after_len}")
+            print(f"[INFO] min_length={self.cli_config.min_text_length}, max_length={self.cli_config.max_text_length}")
         if self.cli_config.max_samples > 0:
             dataset = dataset.select(range(min(len(dataset), self.cli_config.max_samples)))
+
         test_ds = dataset.take(2000)
         train_ds = dataset.skip(2000)
 

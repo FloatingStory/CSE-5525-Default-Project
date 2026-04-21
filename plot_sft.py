@@ -2,7 +2,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-METRICS_FILE = r"logs\sft-meta-llama-Llama-3.2-1B-20260330-103522\metrics.jsonl"
+METRICS_FILE = r"logs\sft-meta-llama-Llama-3.2-1B-20260419-200840\metrics.jsonl"
 
 # ============================
 # 1. read file
@@ -11,6 +11,8 @@ steps = []
 nlls = []
 lrs = []
 times = []
+test_steps = []
+test_nlls = []
 
 with open(METRICS_FILE, "r") as f:
     for line in f:
@@ -19,6 +21,9 @@ with open(METRICS_FILE, "r") as f:
         nlls.append(data["train_mean_nll"])
         lrs.append(data["learning_rate"])
         times.append(data.get("time/step", 0.0))
+        if "test/nll" in data:
+            test_steps.append(data["step"])
+            test_nlls.append(data["test/nll"])
 
 # ============================
 # 2. smoothing & downsampling
@@ -43,6 +48,18 @@ plt.plot(steps_smooth, nll_smooth, label="train_mean_nll (smoothed)")
 plt.xlabel("Step")
 plt.ylabel("NLL")
 plt.title("Training NLL over Steps (Smoothed & Downsampled)")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# ============================
+# 3.5 Plot: Test NLL vs Step (raw, no smoothing)
+# ============================
+plt.figure(figsize=(10, 5))
+plt.plot(test_steps, test_nlls, marker="o", linestyle="-", label="test/nll")
+plt.xlabel("Step")
+plt.ylabel("Test NLL")
+plt.title("Test NLL over Steps")
 plt.grid(True)
 plt.legend()
 plt.show()
