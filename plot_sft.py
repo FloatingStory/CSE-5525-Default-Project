@@ -2,7 +2,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-METRICS_FILE = r"logs\sft-meta-llama-Llama-3.2-1B-20260419-200840\metrics.jsonl"
+METRICS_FILE = r"logs\sft-meta-llama-Llama-3.2-1B-20260420-215100\metrics.jsonl"
 
 # ============================
 # 1. read file
@@ -31,7 +31,6 @@ with open(METRICS_FILE, "r") as f:
 window = 100
 sample_every = 50
 
-# 이동평균 함수
 def moving_average(x, w):
     return np.convolve(x, np.ones(w)/w, mode='valid')
 

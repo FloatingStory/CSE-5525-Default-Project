@@ -3,6 +3,7 @@ from datetime import datetime
 import datasets
 from typing import cast
 import chz
+from langdetect import detect
 
 import tinker
 
@@ -58,17 +59,21 @@ class Olmo2Builder(ChatDatasetBuilder):
     def __call__(self) -> tuple[SupervisedDataset, SupervisedDataset]:
 
         def isEnglish(example):
-            # for message in example["messages"][:5]:
-            #     if not all(ord(char) < 128 for char in message["content"]):
-            #         return False
-            text = " ".join([m["content"] for m in example["messages"][:5]])
+            text = " ".join([m["content"] for m in example["messages"][:3]])
 
-            if len(text) == 0:
+            if len(text.strip()) < 20:
                 return False
 
-            ascii_ratio = sum(c.isascii() for c in text) / len(text)
+            common_words = ["the", "is", "are", "and", "to", "of", "in"]
+            text_lower = text.lower()
+            
+            if sum(word in text_lower for word in common_words) < 1:
+                return False
 
-            return ascii_ratio > 0.9
+            try:
+                return detect(text) == "en"
+            except:
+                return False
             
         def classify(example):
             text = example["messages"][-1]["content"].lower()
@@ -108,9 +113,7 @@ class Olmo2Builder(ChatDatasetBuilder):
         dataset = dataset.shuffle(seed=0)
 
         # filter english if specified
-        if self.cli_config.english_only:
-            dataset = dataset.filter(isEnglish)
-            print("[INFO] Filtered to English only. Remaining samples:", len(dataset))
+
         if self.cli_config.use_mixture:
             dataset = dataset.map(lambda x: {"type": classify(x)})
 
@@ -139,6 +142,9 @@ class Olmo2Builder(ChatDatasetBuilder):
 
             print(f"[INFO] Length filter applied: {before_len} -> {after_len}")
             print(f"[INFO] min_length={self.cli_config.min_text_length}, max_length={self.cli_config.max_text_length}")
+        if self.cli_config.english_only:
+            dataset = dataset.filter(isEnglish)
+            print("[INFO] Filtered to English only. Remaining samples:", len(dataset))
         if self.cli_config.max_samples > 0:
             dataset = dataset.select(range(min(len(dataset), self.cli_config.max_samples)))
 
