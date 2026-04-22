@@ -42,7 +42,7 @@ python -m pip install -r ai2-olmes_venv_requirements.txt
 export HF_TOKEN=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
 
 #adjust adapter_path and output_dir variables in merge_model_and_checkpoint.py
-#adapter_path should point to checkpoint directory holding adapters produced after running with LoRA/QLoRA
+#adapter_path should point to checkpoint directory holding adapters produced after running with LoRA (can download weights from Tinker and use directory that holds the files for the adapter path. Make sure to untar, a local directory path is expected)
 #output_dir adjust to ensure where the merged model is placed
 #then run
 python3 merge_model_and_checkpoint.py 
