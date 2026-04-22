@@ -97,7 +97,7 @@ class CLIConfig:
     renderer_name: str | None = "role_colon"
 
     # Training parameters
-    learning_rate: float = 1e-6
+    learning_rate: float = 1e-5
     lr_schedule: LRSchedule = "linear"
     num_epochs: int | None = 1
     dpo_beta: float = 0.1            #KL-penalty coefficient in the DPO loss. Higher values penalize deviations from the reference model more strongly.

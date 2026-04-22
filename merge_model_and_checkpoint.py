@@ -4,13 +4,12 @@ from huggingface_hub import snapshot_download
 
 #====== IMPORTANT: must be in an environment where transformers version is less than 5.0.0
 
-#use for SFT
+#use for SFT and DPO if the adapter is downloaded from Tinker
 base_model_name = snapshot_download("meta-llama/Llama-3.2-1B")
 
-#use for DPO
-#base_model_name = "./MERGED_SFT_FULLRUN_rolecolon_checkpointFINAL_attemptTOMERGEWITHSAMETRANSFORMERVERSION"
-
+#directory holding config and adapter from Tinker
 adapter_path = "./sft_15000_normal_rolecolon_part"
+#adjust to where you want the full merged model to go
 output_dir = "./MERGED_SFT_checkpoint15000_rolecolon_VALIDMERGE"
 
 #load base model
