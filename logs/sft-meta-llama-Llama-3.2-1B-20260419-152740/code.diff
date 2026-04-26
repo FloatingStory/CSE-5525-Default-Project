@@ -1,0 +1,179 @@
+### repo: F:\GitHub\CSE-5525-Default-Project @ cecc5e390832f6c656890ff008568b2f984231dd
+modules: tinker_cookbook
+-- repo-wide (vs HEAD, staged+unstaged) --
+diff --git a/save_checkpoint.py b/save_checkpoint.py
+index 22915c1..ac587ad 100644
+--- a/save_checkpoint.py
++++ b/save_checkpoint.py
+@@ -4,88 +4,88 @@ import tinker
+ 
+ from tinker_cookbook import checkpoint_utils
+ 
+-LOG_PATH = "logs\sft-meta-llama-Llama-3.2-1B-20260330-103522"
++LOG_PATH = "logs\sft-meta-llama-Llama-3.2-1B-20260418-160328"
+ METRICS_FILE = f"{LOG_PATH}/metrics.jsonl"
+ OUTPUT_FILE = "sft_best_checkpoint.tar.gz"
+ CHECKPOINTS_FILE = f"{LOG_PATH}/checkpoints.jsonl"
+ 
+-# # =========================
+-# # 1. find best step from metrics.jsonl
+-# # =========================
+-# best_step = None
+-# best_loss = float("inf")
++# =========================
++# 1. find best step from metrics.jsonl
++# =========================
++best_step = None
++best_loss = float("inf")
+ 
+-# with open(METRICS_FILE, "r") as f:
+-#     for line in f:
+-#         data = json.loads(line)
++with open(METRICS_FILE, "r") as f:
++    for line in f:
++        data = json.loads(line)
+ 
+-#         loss = data.get("train_mean_nll")
+-#         step = data.get("step")
++        loss = data.get("test/nll")
++        step = data.get("step")
+ 
+-#         if loss is None or step is None:
+-#             continue
++        if loss is None or step is None:
++            continue
+ 
+-#         if loss < best_loss:
+-#             best_loss = loss
+-#             best_step = step
++        if loss < best_loss:
++            best_loss = loss
++            best_step = step
+ 
+-# print(f"[INFO] Best step: {best_step}, loss: {best_loss}")
++print(f"[INFO] Best step: {best_step}, loss: {best_loss}")
+ 
+-# # =========================
+-# # 2. list checkpoints in the log directory
+-# # =========================
+-# best_ckpt = None
+-# min_diff = float("inf")
++# =========================
++# 2. list checkpoints in the log directory
++# =========================
++best_ckpt = None
++min_diff = float("inf")
+ 
+-# with open(CHECKPOINTS_FILE, "r") as f:
+-#     for line in f:
+-#         data = json.loads(line)
++with open(CHECKPOINTS_FILE, "r") as f:
++    for line in f:
++        data = json.loads(line)
+ 
+-#         ckpt_step = data.get("step")
+-#         tinker_path = data.get("sampler_path")
+-#         name = data.get("name")
++        ckpt_step = data.get("step")
++        tinker_path = data.get("sampler_path")
++        name = data.get("name")
+ 
+-#         if ckpt_step is None:
+-#             try:
+-#                 ckpt_step = int(name.split("_")[-1])
+-#             except:
+-#                 continue
++        if ckpt_step is None:
++            try:
++                ckpt_step = int(name.split("_")[-1])
++            except:
++                continue
+ 
+-#         diff = abs(ckpt_step - best_step)
++        diff = abs(ckpt_step - best_step)
+ 
+-#         if diff < min_diff:
+-#             min_diff = diff
+-#             best_ckpt = data
++        if diff < min_diff:
++            min_diff = diff
++            best_ckpt = data
+ 
+-# if best_ckpt is None:
+-#     raise RuntimeError("No matching checkpoint found")
++if best_ckpt is None:
++    raise RuntimeError("No matching checkpoint found")
+ 
+-# print(f"[INFO] Selected checkpoint: {best_ckpt['name']}")
+-# print(f"[INFO] Step diff: {min_diff}")
+-# print(f"[INFO] Tinker path: {best_ckpt['sampler_path']}")
++print(f"[INFO] Selected checkpoint: {best_ckpt['name']}")
++print(f"[INFO] Step diff: {min_diff}")
++print(f"[INFO] Tinker path: {best_ckpt['sampler_path']}")
+ 
+ # =========================
+ # 3. download checkpoint
+ # =========================
+-service_client = tinker.ServiceClient()
+-rest_client = service_client.create_rest_client()
++# service_client = tinker.ServiceClient()
++# rest_client = service_client.create_rest_client()
+ 
+-future = rest_client.get_checkpoint_archive_url_from_tinker_path(
+-    # best_ckpt['sampler_path']
+-    "tinker://b5ec366a-0335-5964-ac0a-9abc3b5289db:train:0/sampler_weights/final"
+-)
++# future = rest_client.get_checkpoint_archive_url_from_tinker_path(
++#     # best_ckpt['sampler_path']
++#     "tinker://1998395c-37d4-55bf-86c6-efad873bc382:train:0/sampler_weights/final"
++# )
+ 
+-url = future.result().url
++# url = future.result().url
+ 
+-print("[INFO] Downloading...")
++# print("[INFO] Downloading...")
+ 
+-r = requests.get(url)
+-r.raise_for_status()
++# r = requests.get(url)
++# r.raise_for_status()
+ 
+-with open(OUTPUT_FILE, "wb") as f:
+-    f.write(r.content)
++# with open(OUTPUT_FILE, "wb") as f:
++#     f.write(r.content)
+ 
+-print(f"[DONE] Saved to {OUTPUT_FILE}")
++# print(f"[DONE] Saved to {OUTPUT_FILE}")
+ 
+ 
+ 
+diff --git a/train_sft.py b/train_sft.py
+index 291be67..b203114 100644
+--- a/train_sft.py
++++ b/train_sft.py
+@@ -35,9 +35,9 @@ class CLIConfig:
+     renderer_name: str | None = "llama3"
+     base_url: str | None = None
+ 
+-    save_every: int = 200
+-    eval_every: int = 1000
+-    infrequent_eval_every: int = 1000
++    save_every: int = 1000
++    eval_every: int = 2000
++    infrequent_eval_every: int = 2000
+ 
+     wandb_project: str | None = None
+     wandb_name: str | None = None
+@@ -108,8 +108,8 @@ class Olmo2Builder(ChatDatasetBuilder):
+             dataset = dataset.shuffle(seed=0)
+         if self.cli_config.max_samples > 0:
+             dataset = dataset.select(range(min(len(dataset), self.cli_config.max_samples)))
+-        test_ds = dataset.take(2000)
+-        train_ds = dataset.skip(2000)
++        test_ds = dataset.take(10000)
++        train_ds = dataset.skip(10000)
+ 
+         train_on_what = (
+             renderers.TrainOnWhat(self.common_config.train_on_what)
