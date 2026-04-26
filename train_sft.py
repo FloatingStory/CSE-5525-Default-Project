@@ -112,8 +112,6 @@ class Olmo2Builder(ChatDatasetBuilder):
         dataset = dataset["train"]
         dataset = dataset.shuffle(seed=0)
 
-        # filter english if specified
-
         if self.cli_config.use_mixture:
             dataset = dataset.map(lambda x: {"type": classify(x)})
 

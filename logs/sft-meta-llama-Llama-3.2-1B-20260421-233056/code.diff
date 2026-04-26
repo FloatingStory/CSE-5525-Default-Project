@@ -1,0 +1,28 @@
+### repo: F:\GitHub\CSE-5525-Default-Project @ c29822651f05da94260a2f6d71ee434b27c674e1
+modules: tinker_cookbook
+-- repo-wide (vs HEAD, staged+unstaged) --
+diff --git a/save_checkpoint.py b/save_checkpoint.py
+index e13debd..f597b94 100644
+--- a/save_checkpoint.py
++++ b/save_checkpoint.py
+@@ -72,7 +72,7 @@ rest_client = service_client.create_rest_client()
+ 
+ future = rest_client.get_checkpoint_archive_url_from_tinker_path(
+     # best_ckpt['sampler_path']
+-    "tinker://59a94dc0-8133-53e6-b02c-291509641b08:train:0/sampler_weights/015000"
++    "tinker://dc4fbe64-bf08-5bb1-937d-4d776e8c2202:train:0/sampler_weights/002000"
+ )
+ 
+ url = future.result().url
+diff --git a/train_sft.py b/train_sft.py
+index 1509ef1..21e31b5 100644
+--- a/train_sft.py
++++ b/train_sft.py
+@@ -112,8 +112,6 @@ class Olmo2Builder(ChatDatasetBuilder):
+         dataset = dataset["train"]
+         dataset = dataset.shuffle(seed=0)
+ 
+-        # filter english if specified
+-
+         if self.cli_config.use_mixture:
+             dataset = dataset.map(lambda x: {"type": classify(x)})

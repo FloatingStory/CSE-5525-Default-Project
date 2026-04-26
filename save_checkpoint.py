@@ -72,7 +72,7 @@ rest_client = service_client.create_rest_client()
 
 future = rest_client.get_checkpoint_archive_url_from_tinker_path(
     # best_ckpt['sampler_path']
-    "tinker://59a94dc0-8133-53e6-b02c-291509641b08:train:0/sampler_weights/015000"
+    "tinker://dc4fbe64-bf08-5bb1-937d-4d776e8c2202:train:0/sampler_weights/final"
 )
 
 url = future.result().url
