@@ -1,0 +1,9 @@
+{%- for message in messages -%}
+{%- if loop.first -%}<|begin_of_text|>{%- endif -%}
+{{ message.role | capitalize }}: {{ message.content }}{{ '\n\n' }}
+
+{%- endfor -%}
+
+{%- if add_generation_prompt %}
+{{- "Assistant: " }}
+{%- endif %}

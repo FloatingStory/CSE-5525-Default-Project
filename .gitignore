@@ -208,3 +208,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 *.gz
+
+#files
+chat_t.txt
+train_dpo_config*
