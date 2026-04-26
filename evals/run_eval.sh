@@ -28,8 +28,8 @@ dataset_name=(
     "ifeval"
     "harmbench::default"
     "xstest::default"
-    #codex_humaneval"
     "codex_humanevalplus"
+    "codex_humanevalplus:0-shot-chat-n5"
 )
 
 #set model_path to whole path to directory of a whole model
