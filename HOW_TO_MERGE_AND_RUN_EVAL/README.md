@@ -13,6 +13,8 @@ Although not required, the load_base_llama_model.py contains the logic to load t
 
 NOTE THAT YOU WANT TO MAKE SURE ALL VENV YOU ARE IN HAVE A "TRANSFORMERS" LIBRARY LESS THAN 5.0.0 to replicate (recommended to just use the olmes venv for everything - just make sure transformers version is less than 5.0.0)
 
+NOTE THAT THE HUGGING FACE TOKEN USED IS NOW INVALIDATED, PLEASE USE YOUR OWN.
+
 ```bash
 #get your github token and allow access to repos, you can replace the "{token}" with your whole github token(should start with "github_pat_")
 
