@@ -1,5 +1,49 @@
 # CSE 5525: Default Project - Spring 2026
 
+## Our Overview
+
+## Project Structure
+
+```
+├── README.md                 # This file
+├── EVAL_PREDICTION_FILES     # Directory holding predictions.jsonl from evaluation
+├── EVAL_OLMES_RESULTS_ZIPPED # Directory holding zipped outputs produced by running run_eval.sh
+├── HOW_TO_MERGE_AND_RUN_EVAL # Directory containing instructions and files needed to merge LoRA weights with base model
+├── train_sft.py              # Supervised Fine-Tuning setup using Tinker API
+├── train_rm.py               # N/A
+├── train_pref.py             # Preference Optimization (DPO) setup using Tinker API
+├── configs/                  # N/A
+├── scripts/                  # N/A
+└── evals/                    # Evaluation suite (OLMES)
+    ├── run_eval.sh           # Script to run evaluations
+    └── olmes/                # AI2's Open Language Model Evaluation System
+```
+**EVAL_PREDICTION_FILES**: predictions.jsonl for base model, SFT, and DPO model for GSM8K (8-shot), MBPP, and ifeval. Harmbench and xstest do not produce prediction files.
+
+**EVAL_OLMES_RESULTS_ZIPPED**: zipped outputs produced by running run_eval.sh on the base model, SFT, DPO, and some SFT with data filtering.
+
+**HOW_TO_MERGE_AND_RUN_EVAL**: Directory containing instructions in its own README and files used to merge LoRA weights with base model as well as extract OLMES evaluation scores from evaluation output.
+
+## Instructions to run after setting up what is specified under the [Overview](#overview):
+```bash
+#set environment variables to be able to run using Tinker and get pretrained models from HuggingFace
+export TINKER_API_KEY={your_Tinker_API_token}
+export HF_TOKEN={your_hugging_face_token}
+
+#execute SFT run using Tinker
+
+
+#execute DPO run using Tinker
+python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=16 dpo_beta=0.1 save_every=1000 eval_every=1000
+
+#then go to HOW_TO_MERGE_AND_RUN_EVAL directory can read the README on how to merge the LoRA weights from Tinker to the Llama-3.2-1b base model from HuggingFace
+
+#after merging weights with base model, go to evals/run_eval.sh and adjust the "model_path" variable to the name of the merged model and execute the run_eval.sh to get OLMES evaluation outputs
+bash evals/run_eval.sh
+```
+
+This is the end of our adjustments to this README, the rest below is what was provided by default in the template github repo provided to us.
+
 ## Overview
 
 This is the default project for CSE 5525 (Foundations of Speech and Language Processing). In this project, you will implement and train a language model using various training paradigms, then evaluate its performance on several benchmark tasks.
