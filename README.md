@@ -12,6 +12,8 @@
 ├── train_sft.py              # Supervised Fine-Tuning setup using Tinker API
 ├── train_rm.py               # N/A
 ├── train_pref.py             # Preference Optimization (DPO) setup using Tinker API
+├── CodeExtensionAnalysis.ipynb # Code used to extract number of valid syntactic parses and manually observe generated code
+├── save_checkpoint.py        # Code used to obtain LoRA weights from Tinker and store into a .tar file
 ├── configs/                  # N/A
 ├── scripts/                  # N/A
 └── evals/                    # Evaluation suite (OLMES)
@@ -32,9 +34,14 @@ export HF_TOKEN={your_hugging_face_token}
 
 #execute SFT run using Tinker
 
+#run save_checkpoint.py to get a local .tar file of LoRA weights from Tinker after training
+python3 save_checkpoint.py
 
 #execute DPO run using Tinker
 python -m train_pref model_name=meta-llama/Llama-3.2-1B dataset=olmo renderer_name=role_colon learning_rate=1e-5 lora_rank=16 dpo_beta=0.1 save_every=1000 eval_every=1000
+
+#run save_checkpoint.py to get a local .tar file of LoRA weights from Tinker after training
+python3 save_checkpoint.py
 
 #then go to HOW_TO_MERGE_AND_RUN_EVAL directory can read the README on how to merge the LoRA weights from Tinker to the Llama-3.2-1b base model from HuggingFace
 
