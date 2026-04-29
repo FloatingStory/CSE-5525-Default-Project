@@ -101,5 +101,5 @@ sbatch eval_olmes_sbatch.sh
 You can then extract primary scores once olmes evaluation is done by running:
 ```bash
 #adjust the list_of_paths variable as specified in json_olmes_eval_all_metrics_extractor.py, then you can run:
-python3 json_olmes_eval_all_metrics_extractor.py 
+python3 json_all_metrics_extract.py
 ```
