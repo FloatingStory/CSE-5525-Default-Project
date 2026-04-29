@@ -39,7 +39,7 @@ export TINKER_API_KEY={your_Tinker_API_token}
 export HF_TOKEN={your_hugging_face_token}
 
 #execute SFT run using Tinker
-python train_sft.py model_name=meta-llama/Llama-3.2-1B dataset=allenai/tulu-3-sft-olmo-2-mixture-0225 train_on_what=last_assistant_message batch_size=32 num_epochs=1 learning_rate=1e-5 lora_rank=16
+python train_sft.py model_name=meta-llama/Llama-3.2-1B dataset=allenai/tulu-3-sft-olmo-2-mixture-0225 train_on_what=last_assistant_message batch_size=32 num_epochs=1 learning_rate=1e-4 lora_rank=16
 
 #run save_checkpoint.py to get a local .tar file of LoRA weights from Tinker after training
 python3 save_checkpoint.py
