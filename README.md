@@ -29,6 +29,11 @@ Notes that to run our code, there are multiple python and bash executions to be 
 
 ## Instructions to run after setting up what is specified under the [Overview](#overview):
 ```bash
+#get your github token and allow access to repos, you can replace the "{token}" with your whole github token(should start with "github_pat_")
+
+#You can download our github main branch by calling:
+!git clone --recurse-submodules https://{token}@github.com/FloatingStory/CSE-5525-Default-Project.git
+
 #set environment variables to be able to run using Tinker and get pretrained models from HuggingFace
 export TINKER_API_KEY={your_Tinker_API_token}
 export HF_TOKEN={your_hugging_face_token}
