@@ -1,6 +1,7 @@
 # CSE 5525: Default Project - Spring 2026
 
 ## Our Overview
+Notes that to run our code, there are multiple python and bash executions to be done, and is specified [in this section](#instructions-to-run-after-setting-up-what-is-specified-under-the-overview).
 
 ## Project Structure
 
@@ -33,6 +34,7 @@ export TINKER_API_KEY={your_Tinker_API_token}
 export HF_TOKEN={your_hugging_face_token}
 
 #execute SFT run using Tinker
+python train_sft.py model_name=meta-llama/Llama-3.2-1B dataset=allenai/tulu-3-sft-olmo-2-mixture-0225 train_on_what=last_assistant_message batch_size=32 num_epochs=1 learning_rate=1e-5 lora_rank=16
 
 #run save_checkpoint.py to get a local .tar file of LoRA weights from Tinker after training
 python3 save_checkpoint.py
@@ -47,6 +49,8 @@ python3 save_checkpoint.py
 
 #after merging weights with base model, go to evals/run_eval.sh and adjust the "model_path" variable to the name of the merged model and execute the run_eval.sh to get OLMES evaluation outputs
 bash evals/run_eval.sh
+
+#after getting OLMES eval outputs you can use CodeExtensionAnalysis.ipynb to observe the code generated.
 ```
 
 This is the end of our adjustments to this README, the rest below is what was provided by default in the template github repo provided to us.
