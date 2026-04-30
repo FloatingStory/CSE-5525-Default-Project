@@ -1,7 +1,7 @@
 # CSE 5525: Default Project - Spring 2026
 
 ## Our Overview
-Notes that to run our code, there are multiple python and bash executions to be done, and is specified [in this section](#instructions-to-run-after-setting-up-what-is-specified-under-the-overview).
+Notes about our code, there are multiple python and bash executions to be executed, and is specified [in this section](#instructions-to-run-after-setting-up-what-is-specified-under-the-overview).
 
 ## Model Card
 Some information of what was used for our project.
