@@ -3,6 +3,26 @@
 ## Our Overview
 Notes that to run our code, there are multiple python and bash executions to be done, and is specified [in this section](#instructions-to-run-after-setting-up-what-is-specified-under-the-overview).
 
+## Model Card
+Some information of what was used for our project.
+
+|  |  |
+| ---- | ---- |
+| **Base Model:** | meta-llama/Llama-3.2-1B |
+| **SFT Dataset:** | allenai/tulu-3-sft-olmo-2-mixture-0225 |
+| **DPO Dataset:** | allenai/olmo-2-0425-1b-preference-mix |
+| **Post training:** | Applied SFT on base model and then DPO on SFT LoRA weights via Tinker API.|
+
+**Data Split:** 
+| Type | Split | Description |
+| ---- | ---- | ---- |
+| **Training:** | remaining samples after first 2000 | Shuffle dataset with seed of 0 and use all samples except the first 2000 after shuffle. |
+| **Testing:** | first 2000 samples | Take the first 2000 samples after shuffing dataset with seed of 0. |
+
+**Use Cases:** _Apply SFT to convert base model into an instruction-following model. Apply DPO to adjust model responses to align more with human expectations._
+
+**Limitations:** _Tinker API credits required to run._
+
 ## Project Structure
 
 ```
@@ -58,7 +78,7 @@ bash evals/run_eval.sh
 #after getting OLMES eval outputs you can use CodeExtensionAnalysis.ipynb to observe the code generated.
 ```
 
-This is the end of our adjustments to this README, the rest below is what was provided by default in the template github repo provided to us.
+**This is the end of our adjustments to this README, the rest below is what was provided by default in the template github repo provided to us.**
 
 ## Overview
 
