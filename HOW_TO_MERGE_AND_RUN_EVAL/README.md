@@ -40,8 +40,8 @@ source .venv_for_merging_model_and_checkpoints/bin/activate
 #install proper requirement versions
 python -m pip install -r ai2-olmes_venv_requirements.txt
 
-#chelsea's read-only hugging face token, contains access to meta's llama models
-export HF_TOKEN=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
+#use a read-only hugging face token, contains access to meta's llama models
+export HF_TOKEN=your_token
 
 #adjust adapter_path and output_dir variables in merge_model_and_checkpoint.py
 #adapter_path should point to checkpoint directory holding adapters produced after running with LoRA (can download weights from Tinker and use directory that holds the files for the adapter path. Make sure to untar, a local directory path is expected)
@@ -73,9 +73,6 @@ To set up olmes evaluation please follow these instructions, this uses a differe
 #your_path not including the start of the default project directory obtained by loading from github
 #activate olmes venv, must use this one specifically as it defaults to this
 source <your_path>/CSE-5525-Default-Project/evals/olmes/.venv/bin/activate
-
-#chelsea's read-only hugging face token, contains access to meta's llama models and access needed for the olmes evals
-export HF_TOKEN=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
 
 #####versions used by chelsea in for the olmes venv can be found in ai2-olmes_venv_requirements.txt 
 #If you are in the olmes venv, you can run python -m pip install -r ai2-olmes_venv_requirements.txt or use "python -m pip freeze > <file_name>.txt" and use diff to compare differences 
